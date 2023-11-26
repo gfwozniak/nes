@@ -52,8 +52,9 @@ module NES(
     output logic [3:0] hex_gridB
     );
     
-    logic clk_25MHz, clk_125MHz, clk_5MHz;
+    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_PPU, clk_BRAM;
     logic locked;
+    logic locked2;
     logic [9:0] drawX, drawY;
 
     logic hsync, vsync, vde;
@@ -63,7 +64,17 @@ module NES(
     assign reset_ah = reset_rtl_0;
     
     logic [7:0] ppu_pixel;
-    logic [9:0] ppu_x, ppu_y;
+    logic [8:0] ppu_x, ppu_y;
+    
+    // PPU
+    logic[13:0] vram_addr;
+    logic[7:0] vram_data_in, vram_data_out;
+    logic vram_rw_sel;
+    logic nmi;
+    logic [2:0] ppu_reg_address;
+    wire [7:0] ppu_reg_data;
+    logic ppu_rw, ppu_cs;
+    
     
     
 //    //Keycode HEX drivers
@@ -94,21 +105,68 @@ module NES(
         .clk_in1(Clk)
     );
     
-//    PPU ppu (
-//        .SW(SW),
-//        .ppu_clk(clk_5MHz),
-//        .ppu_pixel(ppu_pixel),
-//        .ppu_x(ppu_x),
-//        .ppu_y(ppu_y),
-//        .reset(reset_ah)
-//    );
+    clk_wiz_ppu clk_ppu (
+        .clk_out1(clk_BRAM),
+        .clk_out2(clk_PPU),
+        .reset(reset_ah),
+        .locked(locked2),
+        .clk_in1(clk_25MHz)
+    );
+    
+    // CPU clock calculation
+    clk_div3 clk_divider3 (
+        .clk(clk_PPU),
+        .clk_out(clk_CPU),
+        .reset(reset_ah)
+    );
+    
+    PPU ppu (
+        .clk(clk_PPU), // PPU system clock
+        .rst_n(~reset_ah), // active low reset
+        .data(ppu_reg_data), // line for PPU->CPU and CPU->PPU data
+        .address(ppu_reg_address), // PPU register select
+        .vram_data_in(vram_data_in), // Data input from VRAM reads
+        .rw(ppu_rw), // PPU register read/write toggle
+        .cs_in(ppu_cs), // PPU chip select
+        .irq(nmi), // connected to the 6502's NMI pin
+        .pixel_data(ppu_pixel), // the 8 bit color to draw to the screen
+        .vram_addr_out(vram_addr), // The address that the sprite/background renderer specifies
+        .vram_rw_sel(vram_rw_sel),
+        .vram_data_out(vram_data_out), // The data to write to VRAM from PPUDATA
+        .frame_end(),
+        .frame_start(),
+        .rendering(),
+        .screen_y(ppu_x), //[8:0] 
+        .screen_x(ppu_y) //[8:0] 
+    );
+    
+    PPU_driver ppu_driver (
+        .clk(clk_CPU), // CPU clock
+        .rst_n(~reset_ah), // global reset
+        .nmi(nmi), // PPU nmi out
+        .address(ppu_reg_address), // address to ppu
+        .ppu_data(ppu_reg_data),
+        .ppu_rw(ppu_rw),
+        .ppu_cs(ppu_cs)
+    );
+    
+    PPUMemoryWrapper ppu_mem (
+        .clk(clk_PPU),
+        .clk2x(clk_BRAM),
+        .rst_n(~reset_ah),
+        .addr(vram_addr),
+        .data(vram_data_out),
+        .rw(vram_rw_sel),
+        .game(4'b0000),
+        .q(vram_data_in)
+    );
     
     //VGA Sync signal generator
     vga_controller vga (
-        .ppu_clk(clk_5MHz),
+        .ppu_clk(clk_PPU),
         .ppu_pixel(ppu_pixel),
-        .ppu_x(ppu_x),
-        .ppu_y(ppu_y),
+        .ppu_x(ppu_y),
+        .ppu_y(ppu_x),
         .pixel_clk(clk_25MHz),
         .reset(reset_ah),
         .hs(hsync),

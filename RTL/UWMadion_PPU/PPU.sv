@@ -24,6 +24,8 @@ module PPU (
 	output frame_end,
 	output frame_start,
 	output rendering,
+	output [8:0] screen_y,
+	output [8:0] screen_x,
 	// DEBUG ONLY NOT FOR RELEASE
 	output [7:0] red,
 	output [7:0] green,
@@ -105,12 +107,14 @@ module PPU (
 	// each clock produces one pixel.
 	//
 	reg [8:0] scanline_count;
+	assign screen_y = scanline_count;
 
 	//
 	// Current pixel used to determine where the PPU is at in the current scanline
 	// and it should be put through the range [0, 340] for each scanline
 	//
 	reg [8:0] pixel_count;
+	assign screen_x = pixel_count;
 
 	//
 	// Since the PPU runs at a higher clock rate than the CPU we only want to write data
@@ -243,8 +247,17 @@ module PPU (
 
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-			PPUCTRL <= 8'h00;
-			PPUMASK <= 8'h00;
+//			PPUCTRL <= 8'h00;
+//			PPUMASK <= 8'h00;
+//			PPUSTATUS <= 8'h00;
+//			OAMADDR <= 8'h00;
+//			OAMDATA <= 8'h00;
+//			PPUSCROLL <= 8'h00;
+//			PPUADDR <= 8'h00;
+//			PPUDATA <= 8'h00;
+//			OAMDMA <= 8'h00;
+			PPUCTRL <= 8'h80;
+			PPUMASK <= 8'h1e;
 			PPUSTATUS <= 8'h00;
 			OAMADDR <= 8'h00;
 			OAMDATA <= 8'h00;

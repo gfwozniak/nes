@@ -28,7 +28,7 @@ module  vga_controller ( input        pixel_clk,        // 50 MHz clock
                                       Run,
                                       ppu_clk,
                          input logic [7:0] ppu_pixel,
-                         input logic [9:0] ppu_x,
+                         input logic [8:0] ppu_x,
                                            ppu_y,
                                       
                                       

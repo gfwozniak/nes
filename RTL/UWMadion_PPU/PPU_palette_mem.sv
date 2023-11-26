@@ -18,16 +18,45 @@ module PPU_palette_mem(
 	reg [7:0] palette_mem [31:0];
 	reg [7:0] color;
 	
-	initial begin
-		//$readmemh("../hw/PPU/mario_palette.txt", palette_mem);
-	end
-	
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
 			/*
 			for (i = 0; i < 32; i = i + 1)
 				palette_mem[i] <= 8'h00;
 			*/
+			palette_mem[0] <= 8'h22;
+			palette_mem[1] <= 8'h29;
+			palette_mem[2] <= 8'h1a;
+			palette_mem[3] <= 8'h0f;
+			palette_mem[4] <= 8'h22;
+			palette_mem[5] <= 8'h36;
+			palette_mem[6] <= 8'h17;
+			palette_mem[7] <= 8'h0f;
+			palette_mem[8] <= 8'h22;
+			palette_mem[9] <= 8'h30;
+			palette_mem[10] <= 8'h21;
+			palette_mem[11] <= 8'h0f;
+			palette_mem[12] <= 8'h22;
+			palette_mem[13] <= 8'h27;
+			palette_mem[14] <= 8'h17;
+			palette_mem[15] <= 8'h0f;
+			palette_mem[16] <= 8'h00;
+			palette_mem[17] <= 8'h16;
+			palette_mem[18] <= 8'h27;
+			palette_mem[19] <= 8'h18;
+			palette_mem[20] <= 8'h00;
+			palette_mem[21] <= 8'h1a;
+			palette_mem[22] <= 8'h30;
+			palette_mem[23] <= 8'h27;
+			palette_mem[24] <= 8'h00;
+			palette_mem[25] <= 8'h16;
+			palette_mem[26] <= 8'h30;
+			palette_mem[27] <= 8'h27;
+			palette_mem[28] <= 8'h00;
+			palette_mem[29] <= 8'h0f;
+			palette_mem[30] <= 8'h36;
+			palette_mem[31] <= 8'h17;
+			
 		end
 		else begin
 			if (palette_mem_en && palette_mem_rw) begin
