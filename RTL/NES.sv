@@ -75,25 +75,27 @@ module NES(
     wire [7:0] ppu_reg_data;
     logic ppu_rw, ppu_cs;
     
+    // CPU
+    logic [15:0] addr_cpu;
+    logic [7:0] db_in, db_out, db_inout;
+    logic cpu_rw;
     
     
-//    //Keycode HEX drivers
-//    HexDriver HexA (
-//        .clk(Clk),
-//        .reset(reset_ah),
-//        .in({keycode0_gpio[31:28], keycode0_gpio[27:24], keycode0_gpio[23:20], keycode0_gpio[19:16]}),
-//        .hex_seg(hex_segA),
-//        .hex_grid(hex_gridA)
-//    );
-    
-//    HexDriver HexB (
-//        .clk(Clk),
-//        .reset(reset_ah),
-//        .in({keycode0_gpio[15:12], keycode0_gpio[11:8], keycode0_gpio[7:4], keycode0_gpio[3:0]}),
-//        .hex_seg(hex_segB),
-//        .hex_grid(hex_gridB)
-//    );
-   
+    // MicroBlaze setup for keyboard input
+    mb_block mb_block_i(
+        .clk_100MHz(Clk),
+        .gpio_usb_int_tri_i(gpio_usb_int_tri_i),
+        .gpio_usb_keycode_0_tri_o(keycode0_gpio),
+        .gpio_usb_keycode_1_tri_o(keycode1_gpio),
+        .gpio_usb_rst_tri_o(gpio_usb_rst_tri_o),
+        .reset_rtl_0(~reset_ah), //Block designs expect active low reset, all other modules are active high
+        .uart_rtl_0_rxd(uart_rtl_0_rxd),
+        .uart_rtl_0_txd(uart_rtl_0_txd),
+        .usb_spi_miso(usb_spi_miso),
+        .usb_spi_mosi(usb_spi_mosi),
+        .usb_spi_sclk(usb_spi_sclk),
+        .usb_spi_ss(usb_spi_ss)
+    );
         
     //clock wizard configured with a 1x and 5x clock for HDMI
     clk_wiz_0 clk_wiz (
@@ -118,6 +120,25 @@ module NES(
         .clk(clk_PPU),
         .clk_out(clk_CPU),
         .reset(reset_ah)
+    );
+    
+    CPU cpu (
+        .Clk(clk_CPU),      
+        .Reset(reset_ah),   // active high reset
+        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
+        .NMI(nmi),
+        .RDY(~stall),
+        .DB_in(db_in),
+        .AB_out(addr_cpu),
+        .DB_out(db_out), 
+        .RW(cpu_rw)
+    );
+    
+    ConvertToInOut ctio (   
+        .indata(db_in),
+	    .outdata(db_out),
+	    .rw(cpu_rw),
+	    .inoutdata(db_inout)
     );
     
     PPU ppu (
@@ -160,6 +181,30 @@ module NES(
         .game(4'b0000),
         .q(vram_data_in)
     );
+    
+    HardwareDecoder decoder (
+        // output
+	    .ppu_cs_n( ppu_cs_n ),
+		.controller_cs_n( controller_cs_n ), .mem_cs_n( mem_cs_n ),
+
+		.ppu_addr( ppu_addr ),
+		.controller_addr( controller_addr ), .mem_addr( mem_addr ),
+
+		// input
+		.addr( addr_dma ), .rd(cpu_rw), .wr(~cpu_rw)
+    );
+    
+    OAM_dma dma(
+		// output
+		.cpu_stall( stall ), .address_out( addr_dma ), .cpu_ram_read(cpu_ram_read), .ppu_oam_write(ppu_oam_write),
+
+		// input
+		.clk( clk_dma ), .rst_n( rst_n&locked&~booting_n ),
+		.address_in( addr_cpu ),
+
+		// inout
+		.data( data )
+	);
     
     //VGA Sync signal generator
     vga_controller vga (
