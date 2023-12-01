@@ -52,33 +52,50 @@ module NES(
     output logic [3:0] hex_gridB
     );
     
-    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_PPU, clk_BRAM;
+    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_DMA, clk_PPU, clk_MEM, clk_BRAM;
     logic locked;
     logic locked2;
-    logic [9:0] drawX, drawY;
-
-    logic hsync, vsync, vde;
-    logic [7:0] red, green, blue;
-    logic reset_ah;
     
     assign reset_ah = reset_rtl_0;
     
-    logic [7:0] ppu_pixel;
-    logic [8:0] ppu_x, ppu_y;
+    // VGA / HDMI
+    logic [9:0] drawX, drawY;
+    logic hsync, vsync, vde;
+    logic [7:0] red, green, blue;
+    logic reset_ah;
     
     // PPU
     logic[13:0] vram_addr;
     logic[7:0] vram_data_in, vram_data_out;
     logic vram_rw_sel;
     logic nmi;
-    logic [2:0] ppu_reg_address;
+    logic [2:0] ppu_addr;
     wire [7:0] ppu_reg_data;
-    logic ppu_rw, ppu_cs;
+    logic ppu_rw, ppu_cs_n;
+    reg ppu_oam_write;
+    
+    logic [7:0] ppu_pixel;
+    logic [8:0] ppu_x, ppu_y;
     
     // CPU
     logic [15:0] addr_cpu;
     logic [7:0] db_in, db_out, db_inout;
     logic cpu_rw;
+    reg stall;
+    
+    // Controller
+    logic controller_cs_n;
+    logic controller_addr;
+    
+    // DMA / Memory
+    logic mem_cs_n;
+    logic [15:0] mem_addr;
+    logic [15:0] addr_dma;
+    logic [7:0] data;
+    logic game;
+    reg cpu_ram_read;
+    assign clk_DMA = clk_CPU;
+    assign clk_MEM = clk_PPU;
     
     
     // MicroBlaze setup for keyboard input
@@ -123,12 +140,15 @@ module NES(
     );
     
     CPU cpu (
+        // input
         .Clk(clk_CPU),      
         .Reset(reset_ah),   // active high reset
         .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
         .NMI(nmi),
         .RDY(~stall),
         .DB_in(db_in),
+        
+        // output
         .AB_out(addr_cpu),
         .DB_out(db_out), 
         .RW(cpu_rw)
@@ -144,11 +164,11 @@ module NES(
     PPU ppu (
         .clk(clk_PPU), // PPU system clock
         .rst_n(~reset_ah), // active low reset
-        .data(ppu_reg_data), // line for PPU->CPU and CPU->PPU data
-        .address(ppu_reg_address), // PPU register select
+        .data(data), // line for PPU->CPU and CPU->PPU data
+        .address(ppu_addr), // PPU register select
         .vram_data_in(vram_data_in), // Data input from VRAM reads
-        .rw(ppu_rw), // PPU register read/write toggle
-        .cs_in(ppu_cs), // PPU chip select
+        .rw(ppu_rw || ppu_oam_write), // PPU register read/write toggle
+        .cs_in(ppu_cs_n), // PPU chip select
         .irq(nmi), // connected to the 6502's NMI pin
         .pixel_data(ppu_pixel), // the 8 bit color to draw to the screen
         .vram_addr_out(vram_addr), // The address that the sprite/background renderer specifies
@@ -159,16 +179,6 @@ module NES(
         .rendering(),
         .screen_y(ppu_x), //[8:0] 
         .screen_x(ppu_y) //[8:0] 
-    );
-    
-    PPU_driver ppu_driver (
-        .clk(clk_CPU), // CPU clock
-        .rst_n(~reset_ah), // global reset
-        .nmi(nmi), // PPU nmi out
-        .address(ppu_reg_address), // address to ppu
-        .ppu_data(ppu_reg_data),
-        .ppu_rw(ppu_rw),
-        .ppu_cs(ppu_cs)
     );
     
     PPUMemoryWrapper ppu_mem (
@@ -199,11 +209,32 @@ module NES(
 		.cpu_stall( stall ), .address_out( addr_dma ), .cpu_ram_read(cpu_ram_read), .ppu_oam_write(ppu_oam_write),
 
 		// input
-		.clk( clk_dma ), .rst_n( rst_n&locked&~booting_n ),
+		.clk( clk_DMA ), .rst_n( ~reset_ah ),
 		.address_in( addr_cpu ),
 
 		// inout
 		.data( data )
+	);
+	
+	MemoryWrapper mem(
+		// input
+		.clk( clk_mem ), .cs( mem_cs_n ),
+		.rd( cpu_rw || cpu_ram_read ), .wr( ~cpu_rw ),
+		.addr( mem_addr ), .game( game ),
+
+		// inout
+		.databus( data )
+
+		// test
+		//.ram_addr_peek( ram_addr_peek )
+	);
+	
+	GameSelect sel(
+		// input
+		.SW( SW ), .rst_n( rst_n ),
+		
+		// output
+		.game( game )
 	);
     
     //VGA Sync signal generator
@@ -254,6 +285,34 @@ module NES(
         .TMDS_DATA_P(hdmi_tmds_data_p),         
         .TMDS_DATA_N(hdmi_tmds_data_n)          
     );
+    
+    // Old code
+    
+//    PPU ppu(
+//		// output
+//		.irq( nmi ), .pixel_data( pixel_data ), .vram_addr_out( vram_addr ),
+//		.vram_rw_sel( vram_rw_sel ), .vram_data_out( vram_data_out ),
+//		.frame_end( frame_end ), .frame_start( frame_start ),
+//		.rendering( rendering ),
+
+//		// input
+//		.clk( clk_ppu ), .rst_n( rst_n & locked & ~booting_n ),
+//		.address( ppu_addr ), .vram_data_in( vram_data_in ),
+//		.rw(rw_ppu || ppu_oam_write), .cs_in( ppu_cs_n ),
+
+//		// inout
+//		.data( data )
+//	);
+    
+//    PPU_driver ppu_driver (
+//        .clk(clk_CPU), // CPU clock
+//        .rst_n(~reset_ah), // global reset
+//        .nmi(nmi), // PPU nmi out
+//        .address(ppu_reg_address), // address to ppu
+//        .ppu_data(ppu_reg_data),
+//        .ppu_rw(ppu_rw),
+//        .ppu_cs(ppu_cs)
+//    );
 
     
 endmodule

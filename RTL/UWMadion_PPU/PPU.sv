@@ -247,17 +247,8 @@ module PPU (
 
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-//			PPUCTRL <= 8'h00;
-//			PPUMASK <= 8'h00;
-//			PPUSTATUS <= 8'h00;
-//			OAMADDR <= 8'h00;
-//			OAMDATA <= 8'h00;
-//			PPUSCROLL <= 8'h00;
-//			PPUADDR <= 8'h00;
-//			PPUDATA <= 8'h00;
-//			OAMDMA <= 8'h00;
-			PPUCTRL <= 8'h80;
-			PPUMASK <= 8'h1e;
+			PPUCTRL <= 8'h00;
+			PPUMASK <= 8'h00;
 			PPUSTATUS <= 8'h00;
 			OAMADDR <= 8'h00;
 			OAMDATA <= 8'h00;
@@ -265,6 +256,15 @@ module PPU (
 			PPUADDR <= 8'h00;
 			PPUDATA <= 8'h00;
 			OAMDMA <= 8'h00;
+//			PPUCTRL <= 8'h80; GABE'S TEST CODE
+//			PPUMASK <= 8'h1e;
+//			PPUSTATUS <= 8'h00;
+//			OAMADDR <= 8'h00;
+//			OAMDATA <= 8'h00;
+//			PPUSCROLL <= 8'h00;
+//			PPUADDR <= 8'h00;
+//			PPUDATA <= 8'h00;
+//			OAMDMA <= 8'h00;
 			loopy_t <= 15'h0000;
 			fine_x_scroll <= 3'h0;
 			w <= 1'b0;

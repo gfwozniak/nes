@@ -1,4 +1,4 @@
-
+import Games::*;
 
 module PPUMemoryWrapper(input clk,
                                 input clk2x,
@@ -11,7 +11,7 @@ module PPUMemoryWrapper(input clk,
 
 wire [12:0] rom_addr;
 wire [10:0] ram_addr;
-wire [7:0] rom_q, ram_q, mario_rom_q, test_rom_q, rom_douta, ram_douta;
+wire [7:0] rom_q, ram_q, mario_rom_q, nestest_rom_q, rom_douta, ram_douta;
 wire ram_en, rom_en;
 reg [7:0] rom_out, ram_out, rom_out_d, ram_out_d;
 
@@ -26,7 +26,7 @@ assign rom_addr = addr[12:0];
 // Force vertical mirroring PPUMemoryWrapper.sv
 assign ram_addr = addr[10:0];
 // Force test rom
-assign rom_q = mario_rom_q;
+assign rom_q = nestest_rom_q;
 
 assign q = prev_ram_en ? ram_out : prev_rom_en ? rom_out : 8'hzz;
 
@@ -80,8 +80,12 @@ always_comb begin
 end
 
 
-
-char_rom mario_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
+NesTestCharacterRom nestest_char_rom (
+    .addra(rom_addr), 
+    .clka(clk2x), 
+    .douta(rom_douta)
+    );
+//char_rom mario_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
 blk_mem_gen_1 vram (
     .addra({3'b000,ram_addr}),
     .clka(clk2x),
