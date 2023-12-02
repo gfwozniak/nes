@@ -32,10 +32,12 @@ assign rom_rd = !rom_cs ? rd : 0;
 assign q = (!rom_cs) ? q_rom : q_ram;
 assign databus = (rd & !cs) ? q : 8'hzz;
 
-assign q_rom = (game == MARIO) ? q_rom_mario : 
-			   (game == DONKEY_KONG) ? q_rom_dk :
-			   (game == NES_TEST) ? q_rom_nestest :
-					8'hEA; // NOP
+// Force nestest for now
+assign q_rom = q_rom_nestest;
+//assign q_rom = (game == MARIO) ? q_rom_mario : 
+//			   (game == DONKEY_KONG) ? q_rom_dk :
+//			   (game == NES_TEST) ? q_rom_nestest :
+//					8'hEA; // NOP
 
 MarioProgramRom  mario_prg_rom (
     .addra( rom_addr ),

@@ -19,7 +19,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+import Games::*;
 
 module NES(
     input logic Clk,
@@ -52,7 +52,7 @@ module NES(
     output logic [3:0] hex_gridB
     );
     
-    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_DMA, clk_PPU, clk_MEM, clk_BRAM;
+    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_DMA, clk_PPU, clk_MEM, clk_BRAM, clk_CTRL;
     logic locked;
     logic locked2;
     
@@ -79,40 +79,43 @@ module NES(
     
     // CPU
     logic [15:0] addr_cpu;
-    logic [7:0] db_in, db_out, db_inout;
-    logic cpu_rw;
+    logic [7:0] db_in, db_out;
+    logic rw_cpu;
     reg stall;
     
     // Controller
     logic controller_cs_n;
     logic controller_addr;
+    wire rw_ctrl; // Controller read/write toggle 1 = read, 0 = write
+	assign rw_ctrl = rw_cpu;
+	assign clk_CTRL = clk_CPU;
     
     // DMA / Memory
     logic mem_cs_n;
     logic [15:0] mem_addr;
-    logic [15:0] addr_dma;
+    reg [15:0] addr_dma;
     logic [7:0] data;
-    logic game;
     reg cpu_ram_read;
+    wire [3:0] game;
     assign clk_DMA = clk_CPU;
     assign clk_MEM = clk_PPU;
     
     
     // MicroBlaze setup for keyboard input
-    mb_block mb_block_i(
-        .clk_100MHz(Clk),
-        .gpio_usb_int_tri_i(gpio_usb_int_tri_i),
-        .gpio_usb_keycode_0_tri_o(keycode0_gpio),
-        .gpio_usb_keycode_1_tri_o(keycode1_gpio),
-        .gpio_usb_rst_tri_o(gpio_usb_rst_tri_o),
-        .reset_rtl_0(~reset_ah), //Block designs expect active low reset, all other modules are active high
-        .uart_rtl_0_rxd(uart_rtl_0_rxd),
-        .uart_rtl_0_txd(uart_rtl_0_txd),
-        .usb_spi_miso(usb_spi_miso),
-        .usb_spi_mosi(usb_spi_mosi),
-        .usb_spi_sclk(usb_spi_sclk),
-        .usb_spi_ss(usb_spi_ss)
-    );
+//    mb_block mb_block_i(
+//        .clk_100MHz(Clk),
+//        .gpio_usb_int_tri_i(gpio_usb_int_tri_i),
+//        .gpio_usb_keycode_0_tri_o(keycode0_gpio),
+//        .gpio_usb_keycode_1_tri_o(keycode1_gpio),
+//        .gpio_usb_rst_tri_o(gpio_usb_rst_tri_o),
+//        .reset_rtl_0(~reset_ah), //Block designs expect active low reset, all other modules are active high
+//        .uart_rtl_0_rxd(uart_rtl_0_rxd),
+//        .uart_rtl_0_txd(uart_rtl_0_txd),
+//        .usb_spi_miso(usb_spi_miso),
+//        .usb_spi_mosi(usb_spi_mosi),
+//        .usb_spi_sclk(usb_spi_sclk),
+//        .usb_spi_ss(usb_spi_ss)
+//    );
         
     //clock wizard configured with a 1x and 5x clock for HDMI
     clk_wiz_0 clk_wiz (
@@ -151,14 +154,14 @@ module NES(
         // output
         .AB_out(addr_cpu),
         .DB_out(db_out), 
-        .RW(cpu_rw)
+        .RW(rw_cpu)
     );
     
     ConvertToInOut ctio (   
         .indata(db_in),
 	    .outdata(db_out),
-	    .rw(cpu_rw),
-	    .inoutdata(db_inout)
+	    .rw(rw_cpu),
+	    .inoutdata(data)
     );
     
     PPU ppu (
@@ -188,7 +191,7 @@ module NES(
         .addr(vram_addr),
         .data(vram_data_out),
         .rw(vram_rw_sel),
-        .game(4'b0000),
+        .game(game),
         .q(vram_data_in)
     );
     
@@ -201,7 +204,7 @@ module NES(
 		.controller_addr( controller_addr ), .mem_addr( mem_addr ),
 
 		// input
-		.addr( addr_dma ), .rd(cpu_rw), .wr(~cpu_rw)
+		.addr( addr_dma ), .rd(rw_cpu), .wr(~rw_cpu)
     );
     
     OAM_dma dma(
@@ -219,7 +222,7 @@ module NES(
 	MemoryWrapper mem(
 		// input
 		.clk( clk_mem ), .cs( mem_cs_n ),
-		.rd( cpu_rw || cpu_ram_read ), .wr( ~cpu_rw ),
+		.rd( rw_cpu || cpu_ram_read ), .wr( ~rw_cpu ),
 		.addr( mem_addr ), .game( game ),
 
 		// inout
@@ -227,6 +230,15 @@ module NES(
 
 		// test
 		//.ram_addr_peek( ram_addr_peek )
+	);
+	
+	ControllersWrapper ctrls(
+		// input
+		.clk( clk_CTRL ), .rst_n( ~reset_ah ), .addr( controller_addr ),
+		.cs( controller_cs_n ), .rw( rw_ctrl ),
+
+		// inout
+		.cpubus( data )
 	);
 	
 	GameSelect sel(
