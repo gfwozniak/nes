@@ -142,27 +142,27 @@ module NES(
         .reset(reset_ah)
     );
     
-    CPU cpu (
-        // input
-        .Clk(clk_CPU),      
-        .Reset(reset_ah),   // active high reset
-        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
-        .NMI(nmi),
-        .RDY(~stall),
-        .DB_in(db_in),
+//    CPU cpu (
+//        // input
+//        .Clk(clk_CPU),      
+//        .Reset(reset_ah),   // active high reset
+//        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
+//        .NMI(nmi),
+//        .RDY(~stall),
+//        .DB_in(db_in),
         
-        // output
-        .AB_out(addr_cpu),
-        .DB_out(db_out), 
-        .RW(rw_cpu)
-    );
+//        // output
+//        .AB_out(addr_cpu),
+//        .DB_out(db_out), 
+//        .RW(rw_cpu)
+//    );
     
-    ConvertToInOut ctio (   
-        .indata(db_in),
-	    .outdata(db_out),
-	    .rw(rw_cpu),
-	    .inoutdata(data)
-    );
+//    ConvertToInOut ctio (   
+//        .indata(db_in),
+//	    .outdata(db_out),
+//	    .rw(rw_cpu),
+//	    .inoutdata(data)
+//    );
     
     PPU ppu (
         .clk(clk_PPU), // PPU system clock
