@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbench_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="Games" />
+            <top_module name="glbl" />
+            <top_module name="testbench" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="46,382.760 ns"></ZoomStartTime>
+      <ZoomEndTime time="53,507.761 ns"></ZoomEndTime>
+      <Cursor1Time time="35,696.409 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="340"></NameColumnWidth>
+      <ValueColumnWidth column_width="95"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="8" />
+   <wvobject fp_name="group70" type="group">
+      <obj_property name="label">MicroBlaze</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="group71" type="group">
+      <obj_property name="label">HDMI/VGA</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="group72" type="group">
+      <obj_property name="label">Clocks</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/testbench/nes/reset_ah" type="logic">
+         <obj_property name="ElementShortName">reset_ah</obj_property>
+         <obj_property name="ObjectShortName">reset_ah</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/Clk" type="logic">
+         <obj_property name="ElementShortName">Clk</obj_property>
+         <obj_property name="ObjectShortName">Clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_CPU" type="logic">
+         <obj_property name="ElementShortName">clk_CPU</obj_property>
+         <obj_property name="ObjectShortName">clk_CPU</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_DMA" type="logic">
+         <obj_property name="ElementShortName">clk_DMA</obj_property>
+         <obj_property name="ObjectShortName">clk_DMA</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_PPU" type="logic">
+         <obj_property name="ElementShortName">clk_PPU</obj_property>
+         <obj_property name="ObjectShortName">clk_PPU</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_MEM" type="logic">
+         <obj_property name="ElementShortName">clk_MEM</obj_property>
+         <obj_property name="ObjectShortName">clk_MEM</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_BRAM" type="logic">
+         <obj_property name="ElementShortName">clk_BRAM</obj_property>
+         <obj_property name="ObjectShortName">clk_BRAM</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/clk_CTRL" type="logic">
+         <obj_property name="ElementShortName">clk_CTRL</obj_property>
+         <obj_property name="ObjectShortName">clk_CTRL</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group79" type="group">
+      <obj_property name="label">PPU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/testbench/nes/vram_addr" type="array">
+         <obj_property name="ElementShortName">vram_addr[13:0]</obj_property>
+         <obj_property name="ObjectShortName">vram_addr[13:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/vram_data_in" type="array">
+         <obj_property name="ElementShortName">vram_data_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">vram_data_in[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/vram_data_out" type="array">
+         <obj_property name="ElementShortName">vram_data_out[7:0]</obj_property>
+         <obj_property name="ObjectShortName">vram_data_out[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu_addr" type="array">
+         <obj_property name="ElementShortName">ppu_addr[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ppu_addr[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/rw_ppu" type="logic">
+         <obj_property name="ElementShortName">rw_ppu</obj_property>
+         <obj_property name="ObjectShortName">rw_ppu</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu_cs_n" type="logic">
+         <obj_property name="ElementShortName">ppu_cs_n</obj_property>
+         <obj_property name="ObjectShortName">ppu_cs_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu_oam_write" type="logic">
+         <obj_property name="ElementShortName">ppu_oam_write</obj_property>
+         <obj_property name="ObjectShortName">ppu_oam_write</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUMASK" type="array">
+         <obj_property name="ElementShortName">PPUMASK[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUMASK[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUMASK_D" type="array">
+         <obj_property name="ElementShortName">PPUMASK_D[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUMASK_D[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUCTRL" type="array">
+         <obj_property name="ElementShortName">PPUCTRL[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUCTRL[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUCTRL_D" type="array">
+         <obj_property name="ElementShortName">PPUCTRL_D[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUCTRL_D[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group85" type="group">
+      <obj_property name="label">CPU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/testbench/nes/addr_cpu" type="array">
+         <obj_property name="ElementShortName">addr_cpu[15:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_cpu[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/db_in" type="array">
+         <obj_property name="ElementShortName">db_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">db_in[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/db_out" type="array">
+         <obj_property name="ElementShortName">db_out[7:0]</obj_property>
+         <obj_property name="ObjectShortName">db_out[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/DB_buff" type="array">
+         <obj_property name="ElementShortName">DB_buff[7:0]</obj_property>
+         <obj_property name="ObjectShortName">DB_buff[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/PC_Reg_out" type="array">
+         <obj_property name="ElementShortName">PC_Reg_out[15:0]</obj_property>
+         <obj_property name="ObjectShortName">PC_Reg_out[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/Curr_Cycle" type="array">
+         <obj_property name="ElementShortName">Curr_Cycle[3:0]</obj_property>
+         <obj_property name="ObjectShortName">Curr_Cycle[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/Reset_Seq" type="array">
+         <obj_property name="ElementShortName">Reset_Seq[4:0]</obj_property>
+         <obj_property name="ObjectShortName">Reset_Seq[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/Op_State" type="array">
+         <obj_property name="ElementShortName">Op_State[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Op_State[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/Addr_State" type="array">
+         <obj_property name="ElementShortName">Addr_State[3:0]</obj_property>
+         <obj_property name="ObjectShortName">Addr_State[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu/SYNC" type="logic">
+         <obj_property name="ElementShortName">SYNC</obj_property>
+         <obj_property name="ObjectShortName">SYNC</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/rw_cpu" type="logic">
+         <obj_property name="ElementShortName">rw_cpu</obj_property>
+         <obj_property name="ObjectShortName">rw_cpu</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/stall" type="logic">
+         <obj_property name="ElementShortName">stall</obj_property>
+         <obj_property name="ObjectShortName">stall</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group102" type="group">
+      <obj_property name="label">Controller</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/testbench/nes/controller_cs_n" type="logic">
+         <obj_property name="ElementShortName">controller_cs_n</obj_property>
+         <obj_property name="ObjectShortName">controller_cs_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/controller_addr" type="logic">
+         <obj_property name="ElementShortName">controller_addr</obj_property>
+         <obj_property name="ObjectShortName">controller_addr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/rw_ctrl" type="logic">
+         <obj_property name="ElementShortName">rw_ctrl</obj_property>
+         <obj_property name="ObjectShortName">rw_ctrl</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group103" type="group">
+      <obj_property name="label">Mem/DMA</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/testbench/nes/mem/cs" type="logic">
+         <obj_property name="ElementShortName">cs</obj_property>
+         <obj_property name="ObjectShortName">cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/rd" type="logic">
+         <obj_property name="ElementShortName">rd</obj_property>
+         <obj_property name="ObjectShortName">rd</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/wr" type="logic">
+         <obj_property name="ElementShortName">wr</obj_property>
+         <obj_property name="ObjectShortName">wr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu_ram_read" type="logic">
+         <obj_property name="ElementShortName">cpu_ram_read</obj_property>
+         <obj_property name="ObjectShortName">cpu_ram_read</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/game" type="array">
+         <obj_property name="ElementShortName">game[3:0]</obj_property>
+         <obj_property name="ObjectShortName">game[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem_cs_n" type="logic">
+         <obj_property name="ElementShortName">mem_cs_n</obj_property>
+         <obj_property name="ObjectShortName">mem_cs_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem_addr" type="array">
+         <obj_property name="ElementShortName">mem_addr[15:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_addr[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/addr_dma" type="array">
+         <obj_property name="ElementShortName">addr_dma[15:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_dma[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/cpu_ram_read" type="logic">
+         <obj_property name="ElementShortName">cpu_ram_read</obj_property>
+         <obj_property name="ObjectShortName">cpu_ram_read</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/rom_rd" type="logic">
+         <obj_property name="ElementShortName">rom_rd</obj_property>
+         <obj_property name="ObjectShortName">rom_rd</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/ram_rd" type="logic">
+         <obj_property name="ElementShortName">ram_rd</obj_property>
+         <obj_property name="ObjectShortName">ram_rd</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/ram_wr" type="logic">
+         <obj_property name="ElementShortName">ram_wr</obj_property>
+         <obj_property name="ObjectShortName">ram_wr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/data" type="array">
+         <obj_property name="ElementShortName">data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/rom_addr" type="array">
+         <obj_property name="ElementShortName">rom_addr[14:0]</obj_property>
+         <obj_property name="ObjectShortName">rom_addr[14:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/ram_addr" type="array">
+         <obj_property name="ElementShortName">ram_addr[10:0]</obj_property>
+         <obj_property name="ObjectShortName">ram_addr[10:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/q_rom_nestest" type="array">
+         <obj_property name="ElementShortName">q_rom_nestest[7:0]</obj_property>
+         <obj_property name="ObjectShortName">q_rom_nestest[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/q_rom" type="array">
+         <obj_property name="ElementShortName">q_rom[7:0]</obj_property>
+         <obj_property name="ObjectShortName">q_rom[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/q" type="array">
+         <obj_property name="ElementShortName">q[7:0]</obj_property>
+         <obj_property name="ObjectShortName">q[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/mem/databus" type="array">
+         <obj_property name="ElementShortName">databus[7:0]</obj_property>
+         <obj_property name="ObjectShortName">databus[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/data" type="array">
+      <obj_property name="ElementShortName">data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data[7:0]</obj_property>
+   </wvobject>
+</wave_config>

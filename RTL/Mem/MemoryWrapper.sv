@@ -46,13 +46,13 @@ MarioProgramRom  mario_prg_rom (
 );
 
 DonkeyKongProgramRom  dk_prg_rom (
-    .addra( rom_addr ),
+    .addra( rom_addr[13:0] ),
     .clka( clk ),
     .douta( q_rom_dk )
 );
 
 NesTestProgramRom  nestest_prg_rom (
-    .addra( rom_addr ),
+    .addra( rom_addr[13:0] ),
     .clka( clk ),
     .douta( q_rom_nestest )
 );

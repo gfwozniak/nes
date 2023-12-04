@@ -71,7 +71,7 @@ module NES(
     logic nmi;
     logic [2:0] ppu_addr;
     wire [7:0] ppu_reg_data;
-    logic ppu_rw, ppu_cs_n;
+    wire rw_ppu, ppu_cs_n;
     reg ppu_oam_write;
     
     logic [7:0] ppu_pixel;
@@ -99,6 +99,8 @@ module NES(
     wire [3:0] game;
     assign clk_DMA = clk_CPU;
     assign clk_MEM = clk_PPU;
+    
+    assign rw_ppu = ~rw_cpu ? 1'b1 : 1'b0;
     
     
     // MicroBlaze setup for keyboard input
@@ -164,12 +166,12 @@ module NES(
 	    .inoutdata(data)
     );
     
-    ConvertToInOut ctio_cpu_write (   
-        .indata(db_in),
-	    .outdata(db_out),
-	    .rw(rw_cpu),
-	    .inoutdata(data)
-    );
+//    ConvertToInOut ctio_cpu_write (   
+//        .indata(db_in),
+//	    .outdata(db_out),
+//	    .rw(rw_cpu),
+//	    .inoutdata(data)
+//    );
     
     PPU ppu (
         .clk(clk_PPU), // PPU system clock
@@ -177,7 +179,7 @@ module NES(
         .data(data), // line for PPU->CPU and CPU->PPU data
         .address(ppu_addr), // PPU register select
         .vram_data_in(vram_data_in), // Data input from VRAM reads
-        .rw(ppu_rw || ppu_oam_write), // PPU register read/write toggle
+        .rw(rw_ppu || ppu_oam_write), // PPU register read/write toggle
         .cs_in(ppu_cs_n), // PPU chip select
         .irq(nmi), // connected to the 6502's NMI pin
         .pixel_data(ppu_pixel), // the 8 bit color to draw to the screen
@@ -228,7 +230,7 @@ module NES(
 	
 	MemoryWrapper mem(
 		// input
-		.clk( clk_mem ), .cs( mem_cs_n ),
+		.clk( clk_MEM ), .cs( mem_cs_n ),
 		.rd( rw_cpu || cpu_ram_read ), .wr( ~rw_cpu ),
 		.addr( mem_addr ), .game( game ),
 
