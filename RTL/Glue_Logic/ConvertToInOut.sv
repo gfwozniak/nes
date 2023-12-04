@@ -5,8 +5,8 @@ module ConvertToInOut #(parameter WIDTH=8)(
 	inout logic [WIDTH-1:0] inoutdata
 	);
 	
-	parameter  WRITE = 1,
-	           READ = 0;
+	parameter  WRITE = 0,
+	           READ = 1;
 	
 	assign inoutdata = (rw == WRITE) ? indata : 8'hzz;
 

@@ -20,17 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 (* DONT_TOUCH = "yes" *)
-module CPU(input logic   Clk, 
-                            Reset, 
-                            IRQ, 
-                            NMI,
-                            RDY,
-           input logic  [7:0]   DB_in,  // Data Bus in
-           output logic [15:0]  AB_out, // Address Bus out
-           output logic [7:0]   DB_out, // Data Bus out
-           output logic RW, // High = Read, Low = Write
-                        SYNC,
-                        M2
+module CPU(                     input logic     Clk, 
+(* direct_reset = "true" *)     input logic     Reset, 
+                                input logic     IRQ, 
+                                                NMI,
+                                                RDY,
+                           input logic  [7:0]   DB_in,  // Data Bus in
+                           output logic [15:0]  AB_out, // Address Bus out
+                           output logic [7:0]   DB_out, // Data Bus out
+                           output logic         RW, // High = Read, Low = Write
+                                                SYNC,
+                                                M2
            );
           
                        
@@ -58,6 +58,7 @@ logic [7:0]     DB_buff,    // Data Bus buffer
                 D_Reg_in,
                 D2_Reg_in;
 logic           phi1,
+                Reset_a,
                 LD_PC,
                 LD_SP, 
                 LD_A,
@@ -2633,7 +2634,7 @@ end
 
 // Phase Two
 
-always_ff @ (posedge Clk) begin
+always @ (posedge Clk or posedge Reset) begin
     
     // Set defaults
     IRQ_Start = 1'b0;

@@ -94,7 +94,7 @@ module NES(
     logic mem_cs_n;
     logic [15:0] mem_addr;
     reg [15:0] addr_dma;
-    logic [7:0] data;
+    wire [7:0] data;
     reg cpu_ram_read;
     wire [3:0] game;
     assign clk_DMA = clk_CPU;
@@ -142,27 +142,34 @@ module NES(
         .reset(reset_ah)
     );
     
-//    CPU cpu (
-//        // input
-//        .Clk(clk_CPU),      
-//        .Reset(reset_ah),   // active high reset
-//        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
-//        .NMI(nmi),
-//        .RDY(~stall),
-//        .DB_in(db_in),
+    CPU cpu (
+        // input
+        .Clk(clk_CPU),      
+        .Reset(reset_ah),   // active high reset
+        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
+        .NMI(nmi),
+        .RDY(~stall),
+        .DB_in(db_in),
         
-//        // output
-//        .AB_out(addr_cpu),
-//        .DB_out(db_out), 
-//        .RW(rw_cpu)
-//    );
+        // output
+        .AB_out(addr_cpu),
+        .DB_out(db_out), 
+        .RW(rw_cpu)
+    );
     
-//    ConvertToInOut ctio (   
-//        .indata(db_in),
-//	    .outdata(db_out),
-//	    .rw(rw_cpu),
-//	    .inoutdata(data)
-//    );
+    ConvertToInOut ctio (   
+        .indata(db_out),
+	    .outdata(db_in),
+	    .rw(rw_cpu),
+	    .inoutdata(data)
+    );
+    
+    ConvertToInOut ctio_cpu_write (   
+        .indata(db_in),
+	    .outdata(db_out),
+	    .rw(rw_cpu),
+	    .inoutdata(data)
+    );
     
     PPU ppu (
         .clk(clk_PPU), // PPU system clock
@@ -275,7 +282,7 @@ module NES(
         .pix_clk(clk_25MHz),
         .pix_clkx5(clk_125MHz),
         .pix_clk_locked(locked),
-        //Reset is active LOW
+        //Reset is active HIGH
         .rst(reset_ah),
         //Color and Sync Signals
         .red(red),

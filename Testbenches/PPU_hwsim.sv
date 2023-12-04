@@ -82,8 +82,8 @@ end
 // as in a software program
 initial begin: TEST_VECTORS
 reset_rtl_0 = 0;		// Toggle Rest
-#50 reset_rtl_0 = 1;
-#5 reset_rtl_0 = 0;
+#100 reset_rtl_0 = 1;
+#50 reset_rtl_0 = 0;
 
 $display("Success!");  // Command line output in ModelSim
 

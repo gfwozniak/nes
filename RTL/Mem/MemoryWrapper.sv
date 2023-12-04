@@ -32,7 +32,7 @@ assign rom_rd = !rom_cs ? rd : 0;
 assign q = (!rom_cs) ? q_rom : q_ram;
 assign databus = (rd & !cs) ? q : 8'hzz;
 
-// Force nestest for now
+// Force mario for now
 assign q_rom = q_rom_nestest;
 //assign q_rom = (game == MARIO) ? q_rom_mario : 
 //			   (game == DONKEY_KONG) ? q_rom_dk :
