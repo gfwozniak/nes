@@ -21,7 +21,7 @@
 
 (* DONT_TOUCH = "yes" *)
 module CPU(                     input logic     Clk, 
-(* direct_reset = "true" *)     input logic     Reset, 
+                                input logic     Reset, 
                                 input logic     IRQ, 
                                                 NMI,
                                                 RDY,
@@ -2634,17 +2634,17 @@ end
 
 // Phase Two
 
-always @ (posedge Clk or posedge Reset) begin
+always @ (posedge Clk, posedge Reset) begin
     
     // Set defaults
-    IRQ_Start = 1'b0;
-    NMI_Start = 1'b0;
     Reset_Halt = 1'b0;
     
-    if (Reset_Seq > 5'd0) begin
-        NMI_Hijack <= 1'b0;
-        NMI_Seq <= 5'd0;
-        IRQ_Seq <= 5'd0;
+    // Reset sequence
+    if (Reset) begin
+        Reset_Halt = 1'b1;
+        Reset_Seq <= 5'd1;
+    end
+    else if (Reset_Seq > 5'd0) begin
         case (Reset_Seq)
             5'd1:       Reset_Seq <= 5'd2; 
             5'd2:       Reset_Seq <= 5'd3; 
@@ -2655,6 +2655,20 @@ always @ (posedge Clk or posedge Reset) begin
             5'd7:       Reset_Seq <= 5'd8;
             default:    Reset_Seq <= 5'd0;
         endcase 
+    end
+
+end
+
+always @ (posedge Clk) begin
+    
+    // Set defaults
+    IRQ_Start = 1'b0;
+    NMI_Start = 1'b0;
+    
+    if (Reset_Seq > 5'd0) begin
+        NMI_Hijack <= 1'b0;
+        NMI_Seq <= 5'd0;
+        IRQ_Seq <= 5'd0;
     end
         
     if (IRQ_Seq > 5'd1) begin
@@ -2695,12 +2709,8 @@ always @ (posedge Clk or posedge Reset) begin
         IRQ_Seq <= 5'd1;
     end
     
-    // Reset sequence
-    if (Reset) begin
-        Reset_Halt = 1'b1;
-        Reset_Seq <= 5'd1;
-    end
-    else if ( (NMI_Start || NMI_Seq == 5'd1) && Stop_Op )
+    // Interrupt sequence
+    if ( (NMI_Start || NMI_Seq == 5'd1) && Stop_Op )
         NMI_Seq <= 5'd2;
     else if ( (IRQ_Start || IRQ_Seq == 5'd1) && Stop_Op )
         IRQ_Seq <= 5'd2;
