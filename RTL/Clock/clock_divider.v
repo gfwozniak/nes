@@ -9,13 +9,19 @@ wire [1:0] r_nxt;
  
 always @(posedge clk)
 if (reset)
+begin
 pos_count <=0;
+neg_count <=0;
+end
 else if (pos_count ==2) pos_count <= 0;
 else pos_count<= pos_count +1;
  
 always @(negedge clk)
 if (reset)
+begin
+pos_count <=0;
 neg_count <=0;
+end
 else  if (neg_count ==2) neg_count <= 0;
 else neg_count<= neg_count +1;
  
