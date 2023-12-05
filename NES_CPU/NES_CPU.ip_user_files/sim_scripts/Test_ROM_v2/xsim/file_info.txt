@@ -1,0 +1,2 @@
+Test_ROM_v2.v,verilog,xil_defaultlib,../../../../../NES_CPU.gen/sources_1/ip/Test_ROM_v2/sim/Test_ROM_v2.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

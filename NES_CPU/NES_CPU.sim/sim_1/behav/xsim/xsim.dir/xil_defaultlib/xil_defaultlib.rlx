@@ -1,0 +1,10 @@
+0.7
+2020.2
+Oct 14 2022
+05:20:55
+C:/Users/George/Desktop/NES/nes/NES_CPU.gen/sources_1/ip/Test_ROM_v2/sim/Test_ROM_v2.v,1701738290,verilog,,,,Test_ROM_v2,,uvm,,,,,,
+C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/sources_1/imports/new/Register.sv,1701637684,systemVerilog,,C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/testbench/new/testbench.sv,,Register,,uvm,,,,,,
+C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/sources_1/new/CPU_v3.sv,1701763175,systemVerilog,,C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/sources_1/new/NES_toplevel.sv,,CPU_v3,,uvm,,,,,,
+C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/sources_1/new/NES_toplevel.sv,1701755180,systemVerilog,,C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/sources_1/imports/new/Register.sv,,NES_toplevel,,uvm,,,,,,
+C:/Users/George/Desktop/NES/nes/NES_CPU.srcs/testbench/new/testbench.sv,1701736091,systemVerilog,,,,testbench,,uvm,,,,,,
+C:/Users/George/Desktop/NES/nes/NES_CPU/NES_CPU.sim/sim_1/behav/xsim/glbl.v,1665704903,verilog,,,,glbl,,uvm,,,,,,

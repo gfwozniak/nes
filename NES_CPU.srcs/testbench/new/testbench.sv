@@ -29,12 +29,13 @@ timeprecision 10ns;
 
 // These signals are internal because the processor will be 
 // instantiated as a submodule in testbench.
-logic           Clk, 
+logic           Clk_CPU,
+                Clk_MEM,
                 Reset = 1'b0,
                 IRQ = 1'b0,
                 NMI = 1'b0,
-                RDY = 1'b1;
-                
+                RDY = 1'b1,
+                Start;
 
 
 // Instantiating the DUT
@@ -45,11 +46,14 @@ NES_toplevel    nes(.*
 // Toggle the clock
 // #5 means wait for a delay of 1 timeunit (in terms of 1 MHz)
 always begin : CLOCK_GENERATION
-    #5 Clk = ~Clk;
+    #5  Clk_MEM = ~Clk_MEM;
+    #10 Clk_CPU = ~Clk_CPU;
 end
 
 initial begin: CLOCK_INITIALIZATION
-    Clk = 0;
+    Clk_MEM = 1'b0;
+    Clk_CPU = 1'b0;
+    Start = 1'b1;
 end 
 
 
@@ -58,6 +62,8 @@ initial begin: TEST_VECTORS
     
     
     #20 Reset = 0;
+    
+    #300 Start = 1'b0;
     
     // Now just wait and look up the results
 end

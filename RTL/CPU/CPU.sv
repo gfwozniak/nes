@@ -20,17 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 (* DONT_TOUCH = "yes" *)
-module CPU(                     input logic     Clk, 
-                                input logic     Reset, 
-                                input logic     IRQ, 
-                                                NMI,
-                                                RDY,
-                           input logic  [7:0]   DB_in,  // Data Bus in
-                           output logic [15:0]  AB_out, // Address Bus out
-                           output logic [7:0]   DB_out, // Data Bus out
-                           output logic         RW, // High = Read, Low = Write
-                                                SYNC,
-                                                M2
+module CPU_v3(input logic   Clk, 
+                            Reset, 
+                            IRQ, 
+                            NMI,
+                            RDY,
+           input logic  [7:0]   DB_in,  // Data Bus in
+           output logic [15:0]  AB_out, // Address Bus out
+           output logic [7:0]   DB_out, // Data Bus out
+           output logic RW, // High = Read, Low = Write
+                        SYNC,
+                        M2
            );
           
                        
@@ -56,9 +56,9 @@ logic [7:0]     DB_buff,    // Data Bus buffer
                 Y_Reg_in,
                 P_Reg_in,
                 D_Reg_in,
-                D2_Reg_in;
+                D2_Reg_in,
+                Add_Rel;
 logic           phi1,
-                Reset_a,
                 LD_PC,
                 LD_SP, 
                 LD_A,
@@ -95,7 +95,7 @@ assign M2 = Clk;
 assign phi1 = ~Clk;
 
 // Stack Pointer
-assign Stack_Pointer = {8'h01, (8'hFF - SP_Reg_out)};
+assign Stack_Pointer = {8'h01, SP_Reg_out};
             
 // Instantiating registers
 
@@ -125,7 +125,6 @@ Register #(.width(8)) D_Reg(.Clk(Clk), .Reset(Reset), .LD(LD_D), .A(D_Reg_in), .
 
 // Register D2 - 8 bits
 Register #(.width(8)) D2_Reg(.Clk(Clk), .Reset(Reset), .LD(LD_D2), .A(D2_Reg_in), .Z(D2_Reg_out));
-
 
 // Instantiating opcode states
 
@@ -294,7 +293,7 @@ always_comb begin
                         P_Reg_in = 8'h34;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = 8'd1; // Stack_Pointer = 0xFD
+                        SP_Reg_in = 8'hFD; // Stack_Pointer = 0xFD
                     end
             5'd7:   begin
                         // Addressing
@@ -326,7 +325,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd4:   begin
                         // Addressing
@@ -335,7 +334,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd5:   begin
                         // Addressing
@@ -345,7 +344,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd6:   begin
                         // Addressing
@@ -384,7 +383,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd4:   begin
                         // Addressing
@@ -393,7 +392,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd5:   begin
                         // Addressing
@@ -403,7 +402,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd6:   begin
                         // Addressing
@@ -447,7 +446,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd3:   begin
                         // Addressing
@@ -456,7 +455,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd4:   begin
                         // Addressing
@@ -466,7 +465,7 @@ always_comb begin
                         RW = 1'b0;
                         // Decrementing SP
                         LD_SP = 1'b1;
-                        SP_Reg_in = SP_Reg_out + 8'd1;
+                        SP_Reg_in = SP_Reg_out - 8'd1;
                     end
             5'd5:   begin
                         // Addressing
@@ -588,7 +587,7 @@ always_comb begin
                         4'd3:   begin
                                     // Decrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out + 8'd1;
+                                    SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
                         default:    ;   // Do nothing
                     endcase
@@ -603,7 +602,7 @@ always_comb begin
                         4'd3:   begin
                                     // Decrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out + 8'd1;
+                                    SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
                         default:    ;   // Do nothing
                     endcase
@@ -611,7 +610,7 @@ always_comb begin
                         4'd2:   begin
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd3:   begin
                                     AB_out = Stack_Pointer;
@@ -635,7 +634,7 @@ always_comb begin
             PLP:    unique case (Curr_Cycle)
                         4'd2:   begin
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd3:   begin
                                     AB_out = Stack_Pointer;
@@ -804,14 +803,14 @@ always_comb begin
                         4'd2:   begin
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd3:   begin
                                     // Addressing
                                     AB_out = Stack_Pointer;
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd4:   begin
                                     // Addressing
@@ -836,14 +835,14 @@ always_comb begin
                         5'd2:   begin
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         5'd3:   begin
                                     // Addressing
                                     AB_out = Stack_Pointer;
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         5'd4:   begin
                                     // Addressing
@@ -854,7 +853,7 @@ always_comb begin
                                     P_Reg_in[4] = 1'b0;
                                     // Incrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out - 8'd1;
+                                    SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         5'd5:   begin
                                     // Addressing
@@ -1102,7 +1101,7 @@ always_comb begin
                     endcase
             STA:    if (~(Add_Cycle != 4'd0 && Add_Cycle_Control == 4'd0)) begin
                         unique case (Curr_Op_Cycle)
-                            4'd1:   begin
+                            4'd0:   begin
                                         DB_out = A_Reg_out;
                                         RW = 1'b0;
                                     end
@@ -1111,7 +1110,7 @@ always_comb begin
                     end
             STX:    if (~(Add_Cycle != 4'd0 && Add_Cycle_Control == 4'd0)) begin
                         unique case (Curr_Op_Cycle)
-                            4'd1:   begin
+                            4'd0:   begin
                                         DB_out = X_Reg_out;
                                         RW = 1'b0;
                                     end
@@ -1120,7 +1119,7 @@ always_comb begin
                     end
             STY:    if (~(Add_Cycle != 4'd0 && Add_Cycle_Control == 4'd0)) begin
                         unique case (Curr_Op_Cycle)
-                            4'd1:   begin
+                            4'd0:   begin
                                         DB_out = Y_Reg_out;
                                         RW = 1'b0;
                                     end
@@ -1399,230 +1398,262 @@ always_comb begin
                     endcase   
 
             // Conditional Branch Instructions
-            BCC:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[0] == 1'b0) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+            BCC:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[0] == 1'b0) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BCS:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[0] == 1'b1) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BCS:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[0] == 1'b1) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BEQ:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[1] == 1'b1) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BEQ:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[1] == 1'b1) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BMI:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[7] == 1'b1) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BMI:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[7] == 1'b1) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BNE:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[1] == 1'b0) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BNE:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[1] == 1'b0) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BPL:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[7] == 1'b0) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BPL:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[7] == 1'b0) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BVC:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[6] == 1'b0) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BVC:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[6] == 1'b0) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
-            BVS:    unique case (Curr_Cycle)
-                        4'd2:   begin
-                                    if (P_Reg_out[6] == 1'b1) begin
-                                        temp = PC_Reg_out + DB_buff;
-                                        if (PC_Reg_out[15:8] != temp[15:8])   // Branch occurs on different page
-                                            Add_Cycle = 4'd2;
-                                        else    // Branch occurs on same page
-                                            Add_Cycle = 4'd1;
-                                    end 
-                                    else begin
-                                        Address_Inc = 1'b1;
-                                        PC_Inc = 1'b1;
+                            default:    ;   // Do nothing
+                        endcase
+                    end
+            BVS:    begin
+                        temp = ~(DB_buff);
+                        if (DB_buff[7] == 1'b0)     // Addition
+                            PC_Reg_in = PC_Reg_out + DB_buff + 16'd1;
+                        else                        // Subtraction
+                            PC_Reg_in = PC_Reg_out - temp[7:0];
+                        unique case (Curr_Cycle)
+                            4'd2:   begin
+                                        if (P_Reg_out[6] == 1'b1) begin
+                                            if (PC_Reg_in[15:8] != PC_Reg_out[15:8])   // Branch occurs on different page
+                                                Add_Cycle = 4'd2;
+                                            else    // Branch occurs on same page
+                                                Add_Cycle = 4'd1;
+                                        end 
+                                        else begin
+                                            Address_Inc = 1'b1;
+                                            PC_Inc = 1'b1;
+                                        end
                                     end
-                                end
-                        4'd3:   begin
-                                    if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = PC_Reg_out + DB_buff;
+                            4'd3:   begin
+                                        if (Add_Cycle_Control == 4'd1) begin
+                                            AB_out = PC_Reg_in;
+                                            LD_PC = 1'b1;
+                                        end
+                                    end
+                            4'd4:   begin
+                                        AB_out = PC_Reg_in;
                                         LD_PC = 1'b1;
-                                        PC_Reg_in = AB_out;
                                     end
-                                end
-                        4'd4:   begin
-                                    AB_out = PC_Reg_out + DB_buff;
-                                    LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
-                                end
-                        default:    ;   // Do nothing
-                    endcase
+                            default:    ;   // Do nothing
+                        endcase
+                    end
 
             // Jumps & Subroutines
             JMP:    unique case (Curr_Op_Cycle)
@@ -1647,7 +1678,7 @@ always_comb begin
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out + 8'd1;
+                                    SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
                         4'd2:   begin
                                     // Addressing
@@ -1657,7 +1688,7 @@ always_comb begin
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
-                                    SP_Reg_in = SP_Reg_out + 8'd1;
+                                    SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
                         4'd3:   begin
                                     // Addressing

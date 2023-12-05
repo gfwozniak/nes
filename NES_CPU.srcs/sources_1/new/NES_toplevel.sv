@@ -20,11 +20,13 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module NES_toplevel(input logic Clk,
+module NES_toplevel(input logic Clk_CPU,
+                                Clk_MEM,
                                 Reset,
                                 IRQ,
                                 NMI,
-                                RDY
+                                RDY,
+                                Start
                     );
                     
 logic [15:0]    address;
@@ -36,25 +38,32 @@ logic           RW,
 
 // CPU
 CPU_v3 cpu(.*,
+           .Clk(Clk_CPU),
            .AB_out(address)
            );
            
 always_comb begin
-    if (address == 16'hfffc)
-        DB_in = 8'h00;
-    else if (address == 16'hfffd)
-        DB_in = 8'h04;
-    else if (address == 16'h0400)
-        DB_in = 8'hea;
+    if (Start) begin
+        if (address == 16'hfffc)
+            DB_in = 8'h00;
+        else if (address == 16'hfffd)
+            DB_in = 8'h04;
+//        else if (address == 16'h0400)
+//            DB_in = 8'hea;
+        else
+            DB_in = db;     
+    end
     else
-        DB_in = db;     
+        DB_in = db;
 end
 
 
 // Test ROM
 Test_ROM_v2 rom(.addra(address),
-                .clka(Clk),
-                .douta(db)
+                .clka(Clk_MEM),
+                .dina(DB_out),
+                .douta(db),
+                .wea(~RW)
                 );
      
 
