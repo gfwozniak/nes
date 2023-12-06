@@ -3,7 +3,6 @@ import Games::*;
 module MemoryWrapper(	
 			input clk,
 			input rst_n,
-			input [9:0] SW,
 			input cs, // active low
 			input rd,
 			input wr,
@@ -62,7 +61,7 @@ ProgramRam prg_ram (
     .clka( clk ),
     .dina( databus ),
     .douta( q_ram ),
-    .ena( 1'b1 ),
+    .rsta( rst_n ),
     .wea( wr )
 );
 			

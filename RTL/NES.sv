@@ -230,7 +230,7 @@ module NES(
 	
 	MemoryWrapper mem(
 		// input
-		.clk( clk_MEM ), .cs( mem_cs_n ),
+		.clk( clk_MEM ), .cs( mem_cs_n ), .rst_n( reset_ah ),
 		.rd( rw_cpu || cpu_ram_read ), .wr( ~rw_cpu ),
 		.addr( mem_addr ), .game( game ),
 

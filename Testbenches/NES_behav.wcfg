@@ -12,13 +12,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="46,382.760 ns"></ZoomStartTime>
-      <ZoomEndTime time="53,507.761 ns"></ZoomEndTime>
-      <Cursor1Time time="35,696.409 ns"></Cursor1Time>
+      <ZoomStartTime time="83.095000 us"></ZoomStartTime>
+      <ZoomEndTime time="97.525001 us"></ZoomEndTime>
+      <Cursor1Time time="86.390000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="340"></NameColumnWidth>
-      <ValueColumnWidth column_width="95"></ValueColumnWidth>
+      <ValueColumnWidth column_width="85"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="8" />
    <wvobject fp_name="group70" type="group">
@@ -71,6 +71,22 @@
       <obj_property name="label">PPU</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/testbench/nes/ppu/cpu_vram_read" type="logic">
+         <obj_property name="ElementShortName">cpu_vram_read</obj_property>
+         <obj_property name="ObjectShortName">cpu_vram_read</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/cpu_oam_read" type="logic">
+         <obj_property name="ElementShortName">cpu_oam_read</obj_property>
+         <obj_property name="ObjectShortName">cpu_oam_read</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/rst_n" type="logic">
+         <obj_property name="ElementShortName">rst_n</obj_property>
+         <obj_property name="ObjectShortName">rst_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/cs_in" type="logic">
+         <obj_property name="ElementShortName">cs_in</obj_property>
+         <obj_property name="ObjectShortName">cs_in</obj_property>
+      </wvobject>
       <wvobject fp_name="/testbench/nes/vram_addr" type="array">
          <obj_property name="ElementShortName">vram_addr[13:0]</obj_property>
          <obj_property name="ObjectShortName">vram_addr[13:0]</obj_property>
@@ -114,6 +130,26 @@
       <wvobject fp_name="/testbench/nes/ppu/PPUCTRL_D" type="array">
          <obj_property name="ElementShortName">PPUCTRL_D[7:0]</obj_property>
          <obj_property name="ObjectShortName">PPUCTRL_D[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUDATA" type="array">
+         <obj_property name="ElementShortName">PPUDATA[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUDATA[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/OAMDMA" type="array">
+         <obj_property name="ElementShortName">OAMDMA[7:0]</obj_property>
+         <obj_property name="ObjectShortName">OAMDMA[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUSTATUS" type="array">
+         <obj_property name="ElementShortName">PPUSTATUS[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUSTATUS[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/PPUSTATUS_D" type="array">
+         <obj_property name="ElementShortName">PPUSTATUS_D[7:0]</obj_property>
+         <obj_property name="ObjectShortName">PPUSTATUS_D[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/data" type="array">
+         <obj_property name="ElementShortName">data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data[7:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group85" type="group">
@@ -163,6 +199,10 @@
       <wvobject fp_name="/testbench/nes/rw_cpu" type="logic">
          <obj_property name="ElementShortName">rw_cpu</obj_property>
          <obj_property name="ObjectShortName">rw_cpu</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/nmi" type="logic">
+         <obj_property name="ElementShortName">nmi</obj_property>
+         <obj_property name="ObjectShortName">nmi</obj_property>
       </wvobject>
       <wvobject fp_name="/testbench/nes/stall" type="logic">
          <obj_property name="ElementShortName">stall</obj_property>
