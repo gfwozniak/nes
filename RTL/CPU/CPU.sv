@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 (* DONT_TOUCH = "yes" *)
-module CPU_v3(input logic   Clk, 
+module CPU(input logic      Clk, 
                             Reset, 
                             IRQ, 
                             NMI,
@@ -39,7 +39,10 @@ module CPU_v3(input logic   Clk,
 logic [31:0]    Interrupt_Vector;
 logic [15:0]    PC_Reg_out,
                 PC_Reg_in,
+                ADDR_Reg_out,
+                ADDR_Reg_in,
                 Stack_Pointer,
+                Next_Addr,
                 temp;       // Used as a temp variable for various operations
 logic [7:0]     DB_buff,    // Data Bus buffer
                 SP_Reg_out, 
@@ -60,6 +63,7 @@ logic [7:0]     DB_buff,    // Data Bus buffer
                 Add_Rel;
 logic           phi1,
                 LD_PC,
+                LD_ADDR,
                 LD_SP, 
                 LD_A,
                 LD_X,
@@ -125,6 +129,9 @@ Register #(.width(8)) D_Reg(.Clk(Clk), .Reset(Reset), .LD(LD_D), .A(D_Reg_in), .
 
 // Register D2 - 8 bits
 Register #(.width(8)) D2_Reg(.Clk(Clk), .Reset(Reset), .LD(LD_D2), .A(D2_Reg_in), .Z(D2_Reg_out));
+
+// Register ADDR - 16 bits
+Register #(.width(16)) ADDR_Reg(.Clk(Clk), .Reset(Reset), .LD(LD_ADDR), .A(ADDR_Reg_in), .Z(ADDR_Reg_out));
 
 // Instantiating opcode states
 
@@ -232,13 +239,14 @@ always_comb begin
     // Addressing and Cycling
     RW = 1'b1;
     Address_Inc = 1'b1;
-    AB_out = PC_Reg_out;
+    Next_Addr = PC_Reg_out;
     Add_Cycle = Add_Cycle_Control;
     Sub_Cycle = Sub_Cycle_Control;
     
     // Registers
     PC_Reg_in = PC_Reg_out;
     PC_Inc = 1'b1;      
+    ADDR_Reg_in = 16'd0;
     SP_Reg_in = SP_Reg_out;
     A_Reg_in = 8'h00;
     X_Reg_in = 8'h00;
@@ -250,6 +258,7 @@ always_comb begin
             
      // Loads 
     LD_PC = 1'b0;
+    LD_ADDR = 1'b0;
     LD_SP = 1'b0;
     LD_A = 1'b0;
     LD_X = 1'b0;
@@ -287,7 +296,7 @@ always_comb begin
         unique case (Reset_Seq)
             5'd6:   begin
                         // Addressing
-                        AB_out = 16'hFFFC;    
+                        Next_Addr = 16'hFFFC;    
                         // Status Register
                         LD_P = 1'b1;
                         P_Reg_in = 8'h34;
@@ -297,16 +306,16 @@ always_comb begin
                     end
             5'd7:   begin
                         // Addressing
-                        AB_out = 16'hFFFD;
+                        Next_Addr = 16'hFFFD;
                         // Data
                         LD_D = 1'b1;
                         D_Reg_in = DB_buff;
                     end
             5'd8:   begin
                         // Addressing
-                        AB_out = {DB_buff, D_Reg_out};
+                        Next_Addr = {DB_buff, D_Reg_out};
                         LD_PC = 1'b1;
-                        PC_Reg_in = AB_out;
+                        PC_Reg_in = Next_Addr;
                         PC_Inc = 1'b0;
                     end
             default: ;  // Do nothing
@@ -320,7 +329,7 @@ always_comb begin
         unique case (NMI_Seq)
             5'd3:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[15:8];
                         RW = 1'b0;
                         // Decrementing SP
@@ -329,7 +338,7 @@ always_comb begin
                     end
             5'd4:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[7:0];
                         RW = 1'b0;
                         // Decrementing SP
@@ -338,8 +347,9 @@ always_comb begin
                     end
             5'd5:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = P_Reg_out;
+                        DB_out[5] = 1'b1;
                         DB_out[4] = 1'b0;
                         RW = 1'b0;
                         // Decrementing SP
@@ -349,22 +359,22 @@ always_comb begin
             5'd6:   begin
                         // Addressing
                         RW = 1'b1;
-                        AB_out = 16'hfffa;
+                        Next_Addr = 16'hfffa;
                         // Status Register
                         LD_P = 1'b1;
                         P_Reg_in[2] = 1'b1;
                     end
             5'd7:   begin
                         // Addressing
-                        AB_out = 16'hfffb;
+                        Next_Addr = 16'hfffb;
                         LD_D = 1'b1;
                         D_Reg_in = DB_buff;
                     end
             5'd8:   begin
                         // Addressing
-                        AB_out = {DB_buff, D_Reg_out};
+                        Next_Addr = {DB_buff, D_Reg_out};
                         LD_PC = 1'b1;
-                        PC_Reg_in = AB_out;
+                        PC_Reg_in = Next_Addr;
                     end
             default:    ;  // Do nothing
         endcase 
@@ -378,7 +388,7 @@ always_comb begin
         unique case (IRQ_Seq)
             5'd3:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[15:8];
                         RW = 1'b0;
                         // Decrementing SP
@@ -387,7 +397,7 @@ always_comb begin
                     end
             5'd4:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[7:0];
                         RW = 1'b0;
                         // Decrementing SP
@@ -396,8 +406,9 @@ always_comb begin
                     end
             5'd5:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = P_Reg_out;
+                        DB_out[5] = 1'b1;
                         DB_out[4] = 1'b0;
                         RW = 1'b0;
                         // Decrementing SP
@@ -407,22 +418,22 @@ always_comb begin
             5'd6:   begin
                         // Addressing
                         RW = 1'b1;
-                        AB_out = Interrupt_Vector[15:0];
+                        Next_Addr = Interrupt_Vector[15:0];
                         // Status Register
                         LD_P = 1'b1;
                         P_Reg_in[2] = 1'b1;
                     end
             5'd7:   begin
                         // Addressing
-                        AB_out = Interrupt_Vector[31:16];
+                        Next_Addr = Interrupt_Vector[31:16];
                         LD_D = 1'b1;
                         D_Reg_in = DB_buff;
                     end
             5'd8:   begin
                         // Addressing
-                        AB_out = {DB_buff, D_Reg_out};
+                        Next_Addr = {DB_buff, D_Reg_out};
                         LD_PC = 1'b1;
-                        PC_Reg_in = AB_out;
+                        PC_Reg_in = Next_Addr;
                     end
             default:    ;  // Do nothing
         endcase 
@@ -441,7 +452,7 @@ always_comb begin
                     end
             5'd2:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[15:8];
                         RW = 1'b0;
                         // Decrementing SP
@@ -450,7 +461,7 @@ always_comb begin
                     end
             5'd3:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = PC_Reg_out[7:0];
                         RW = 1'b0;
                         // Decrementing SP
@@ -459,8 +470,9 @@ always_comb begin
                     end
             5'd4:   begin
                         // Addressing
-                        AB_out = Stack_Pointer;
+                        Next_Addr = Stack_Pointer;
                         DB_out = P_Reg_out;
+                        DB_out[5] = 1'b1;
                         DB_out[4] = 1'b1;
                         RW = 1'b0;
                         // Decrementing SP
@@ -470,22 +482,22 @@ always_comb begin
             5'd5:   begin
                         // Addressing
                         RW = 1'b1;
-                        AB_out = Interrupt_Vector[15:0];
+                        Next_Addr = Interrupt_Vector[15:0];
                         // Status Register
                         LD_P = 1'b1;
                         P_Reg_in[2] = 1'b1;
                     end
             5'd6:   begin
                         // Addressing
-                        AB_out = Interrupt_Vector[31:16];
+                        Next_Addr = Interrupt_Vector[31:16];
                         LD_D = 1'b1;
                         D_Reg_in = DB_buff;
                     end
             5'd7:   begin
                         // Addressing
-                        AB_out = {DB_buff, D_Reg_out};
+                        Next_Addr = {DB_buff, D_Reg_out};
                         LD_PC = 1'b1;
-                        PC_Reg_in = AB_out;
+                        PC_Reg_in = Next_Addr;
                     end
             default:    ;  // Do nothing
         endcase 
@@ -580,7 +592,7 @@ always_comb begin
             // Stack Instructions
             PHA:    unique case (Curr_Cycle)
                         4'd2:   begin
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     DB_out = A_Reg_out;
                                     RW = 1'b0;
                                 end
@@ -593,10 +605,10 @@ always_comb begin
                     endcase
             PHP:    unique case (Curr_Cycle)
                         4'd2:   begin
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     DB_out = P_Reg_out;
-                                    DB_out[4] = 1'b1;
                                     DB_out[5] = 1'b1;
+                                    DB_out[4] = 1'b1;
                                     RW = 1'b0;
                                 end
                         4'd3:   begin
@@ -613,7 +625,7 @@ always_comb begin
                                     SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd3:   begin
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                 end
                         4'd4:   begin
                                     LD_A = 1'b1;
@@ -637,13 +649,13 @@ always_comb begin
                                     SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd3:   begin
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                 end
                         4'd4:   begin
                                     LD_P = 1'b1;
                                     P_Reg_in = DB_buff;
-                                    P_Reg_in[4] = 1'b0;
                                     P_Reg_in[5] = 1'b0;
+                                    P_Reg_in[4] = 1'b0;
                                 end
                         default:    ;   // Do nothing
                     endcase
@@ -741,7 +753,7 @@ always_comb begin
                         LD_P = 1'b1;
                         P_Reg_in[0] = A_Reg_out[7];
                         LD_A = 1'b1;
-                        A_Reg_in = {A_Reg_out[6:0], P_Reg_in[0]};
+                        A_Reg_in = {A_Reg_out[6:0], P_Reg_out[0]};
                         // Status Register
                         if (A_Reg_in == 8'd0)
                             P_Reg_in[1] = 1'b1;
@@ -756,7 +768,7 @@ always_comb begin
                         LD_P = 1'b1;
                         P_Reg_in[0] = A_Reg_out[0];
                         LD_A = 1'b1;
-                        A_Reg_in = {P_Reg_in[0], A_Reg_out[7:1]};
+                        A_Reg_in = {P_Reg_out[0], A_Reg_out[7:1]};
                         // Status Register
                         if (A_Reg_in == 8'd0)
                             P_Reg_in[1] = 1'b1;
@@ -807,25 +819,25 @@ always_comb begin
                                 end
                         4'd3:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     // Incrementing SP
                                     LD_SP = 1'b1;
                                     SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         4'd4:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff;
                                 end
                         4'd5:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                 end
                         4'd6:   begin
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
                                     LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
+                                    PC_Reg_in = Next_Addr;
                                 end
                         default:    ;   // Do nothing
                     endcase   
@@ -839,14 +851,14 @@ always_comb begin
                                 end
                         5'd3:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     // Incrementing SP
                                     LD_SP = 1'b1;
                                     SP_Reg_in = SP_Reg_out + 8'd1;
                                 end
                         5'd4:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     LD_P = 1'b1;
                                     P_Reg_in = DB_buff;
                                     P_Reg_in[5] = 1'b0;
@@ -857,15 +869,15 @@ always_comb begin
                                 end
                         5'd5:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
+                                    Next_Addr = Stack_Pointer;
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff;
                                 end
                         5'd6:   begin
                                     // Addressing
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
                                     LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
+                                    PC_Reg_in = Next_Addr;
                                 end
                         default:    ;  // Do nothing
                     endcase 
@@ -878,7 +890,6 @@ always_comb begin
     end
     // Addressing Modes
     else if (Curr_Cycle <= Total_Cycle_Count) begin 
-    
         Address_Inc = 1'b0;
         PC_Inc = 1'b0;
         unique case (Addr_State)
@@ -890,8 +901,12 @@ always_comb begin
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff;
                                 end
-                        4'd3:       AB_out = {DB_buff, D_Reg_out};
-                        default:    ;   // Do nothing
+                        4'd3:   begin
+                                    Next_Addr = {DB_buff, D_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
+                                end 
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             abs_X:  unique case (Curr_Cycle)
                         4'd2:   begin
@@ -901,24 +916,26 @@ always_comb begin
                                     D_Reg_in = DB_buff;
                                 end
                         4'd3:   begin
-                                    AB_out = {DB_buff, D_Reg_out + X_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out + X_Reg_out};
                                     temp = D_Reg_out + X_Reg_out;
                                     if (temp[15:8] != 8'h00)
                                         Addr_Overflow = 1'b1;
                                     else
                                         Addr_Overflow = 1'b0;
                                     if (Addr_Overflow || Write_Op) begin    // If overflow occurs or write op is enabled, add extra cycle
-                                        AB_out = PC_Reg_out;
+                                        Next_Addr = PC_Reg_out;
                                         Add_Cycle = 4'd1;
                                     end
                                 end
                         4'd4:   begin
                                     if (Addr_Overflow)
-                                        AB_out = {DB_buff + 8'd1, D_Reg_out + X_Reg_out};
+                                        Next_Addr = {DB_buff + 8'd1, D_Reg_out + X_Reg_out};
                                     else
-                                        AB_out = {DB_buff, D_Reg_out + X_Reg_out};
+                                        Next_Addr = {DB_buff, D_Reg_out + X_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
                                 end
-                        default:    ;   // Do nothing
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             abs_Y:  unique case (Curr_Cycle)
                         4'd2:   begin
@@ -928,24 +945,26 @@ always_comb begin
                                     D_Reg_in = DB_buff;
                                 end
                         4'd3:   begin
-                                    AB_out = {DB_buff, D_Reg_out + Y_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out + Y_Reg_out};
                                     temp = D_Reg_out + Y_Reg_out;
                                     if (temp[15:8] != 8'h00)
                                         Addr_Overflow = 1'b1;
                                     else
                                         Addr_Overflow = 1'b0;
                                     if (Addr_Overflow || Write_Op) begin    // If overflow occurs or write op is enabled, add extra cycle
-                                        AB_out = PC_Reg_out;
+                                        Next_Addr = PC_Reg_out;
                                         Add_Cycle = 4'd1;
                                     end
                                 end
                         4'd4:   begin
                                     if (Addr_Overflow)
-                                        AB_out = {DB_buff + 8'd1, D_Reg_out + Y_Reg_out};
+                                        Next_Addr = {DB_buff + 8'd1, D_Reg_out + Y_Reg_out};
                                     else
-                                        AB_out = {DB_buff, D_Reg_out + Y_Reg_out};
+                                        Next_Addr = {DB_buff, D_Reg_out + Y_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
                                 end
-                        default:    ;   // Do nothing
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             imm:    ;
             impl:   ;
@@ -957,19 +976,21 @@ always_comb begin
                                     D_Reg_in = DB_buff;
                                 end
                         4'd3:   begin
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
                                     LD_D2 = 1'b1;
                                     D2_Reg_in = DB_buff;
                                 end
                         4'd4:   begin
-                                    AB_out = {D2_Reg_out, D_Reg_out + 8'd1};
+                                    Next_Addr = {D2_Reg_out, D_Reg_out + 8'd1};
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff;
                                 end
                         4'd5:   begin
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
                                 end
-                        default:    ;   // Do nothing
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             X_ind:  unique case (Curr_Cycle)
                         4'd2:   begin
@@ -977,26 +998,28 @@ always_comb begin
                                     D_Reg_in = DB_buff;
                                 end
                         4'd3:   begin
-                                    AB_out = {8'h00, D_Reg_out + X_Reg_out};
+                                    Next_Addr = {8'h00, D_Reg_out + X_Reg_out};
                                 end
                         4'd4:   begin
-                                    AB_out = {8'h00, D_Reg_out + X_Reg_out + 8'd1};
+                                    Next_Addr = {8'h00, D_Reg_out + X_Reg_out + 8'd1};
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff;
                                 end
                         4'd5:   begin
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
                                 end
-                        default:    ;   // Do nothing
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             ind_Y:  unique case (Curr_Cycle)
                         4'd2:   begin
-                                    AB_out = {8'h00, DB_buff};
+                                    Next_Addr = {8'h00, DB_buff};
                                     LD_D = 1'b1; 
                                     D_Reg_in = DB_buff;
                                 end
                         4'd3:   begin
-                                    AB_out = {8'h00, D_Reg_out + 8'd1};
+                                    Next_Addr = {8'h00, D_Reg_out + 8'd1};
                                     LD_D = 1'b1;
                                     D_Reg_in = DB_buff + Y_Reg_out;
                                     temp = DB_buff + Y_Reg_out;
@@ -1005,41 +1028,57 @@ always_comb begin
                                     else
                                         Addr_Overflow = 1'b0;
                                     if (Addr_Overflow || Write_Op) begin    // If overflow occurs or write op is enabled, add extra cycle
-                                        AB_out = {8'h00, D_Reg_out};
+                                        Next_Addr = {8'h00, D_Reg_out};
                                         LD_D = 1'b0;
                                         Add_Cycle = 4'd1;
                                     end
                                 end
                         4'd4:   begin
                                     if (Add_Cycle_Control == 4'd1) begin
-                                        AB_out = {8'h00, D_Reg_out + 8'd1};
+                                        Next_Addr = {8'h00, D_Reg_out + 8'd1};
                                         LD_D = 1'b1;
                                         D_Reg_in = DB_buff + Y_Reg_out;
                                     end
                                     else begin
-                                        AB_out = {DB_buff, D_Reg_out};
+                                        Next_Addr = {DB_buff, D_Reg_out};
                                     end
                                 end
                         4'd5:   begin
                                     if (Addr_Overflow)
-                                        AB_out = {DB_buff + 8'd1, D_Reg_out};
+                                        Next_Addr = {DB_buff + 8'd1, D_Reg_out};
                                     else
-                                        AB_out = {DB_buff, D_Reg_out};
+                                        Next_Addr = {DB_buff, D_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
                                 end
-                        default:    ;   // Do nothing
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             rel:    ;  
             zpg:    unique case (Curr_Cycle)
-                        4'd2:   AB_out = {8'h00, DB_buff};
-                        default:    ;   // Do nothing
+                        4'd2:   begin
+                                    Next_Addr = {8'h00, DB_buff};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
+                                end
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             zpg_X:  unique case (Curr_Cycle)
-                        4'd3:   AB_out = {8'h00, DB_buff + X_Reg_out};
-                        default:    ;   // Do nothing
+                        4'd2:   ;   // Do nothing
+                        4'd3:   begin
+                                    Next_Addr = {8'h00, DB_buff + X_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
+                                end
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             zpg_Y:  unique case (Curr_Cycle)
-                        4'd3:   AB_out = {8'h00, DB_buff + Y_Reg_out};
-                        default:    ;   // Do nothing
+                        4'd2:   ;   // Do nothing
+                        4'd3:   begin
+                                    Next_Addr = {8'h00, DB_buff + Y_Reg_out};
+                                    LD_ADDR = 1'b1;
+                                    ADDR_Reg_in = Next_Addr;
+                                end
+                        default:    Next_Addr = ADDR_Reg_out;
                     endcase
             default:    ;   // Do nothing
         endcase
@@ -1190,8 +1229,9 @@ always_comb begin
             SBC:    unique case (Curr_Op_Cycle)
                         4'd1:   begin
                                     LD_A = 1'b1;
-                                    A_Reg_in = A_Reg_out + ~DB_buff + P_Reg_out[0];
-                                    temp = A_Reg_out + ~DB_buff + P_Reg_out[0];
+                                    D2_Reg_in = ~DB_buff;
+                                    A_Reg_in = A_Reg_out + D2_Reg_in + P_Reg_out[0];
+                                    temp = A_Reg_out + D2_Reg_in + P_Reg_out[0];
                                     // Status Register
                                     LD_P = 1'b1;
                                     if (temp > 16'd255)
@@ -1217,6 +1257,7 @@ always_comb begin
                                     LD_A = 1'b1;
                                     A_Reg_in = A_Reg_out & DB_buff;
                                     // Status Register
+                                    LD_P = 1'b1;
                                     if (A_Reg_in == 8'd0)
                                         P_Reg_in[1] = 1'b1;
                                     else
@@ -1233,6 +1274,7 @@ always_comb begin
                                     LD_A = 1'b1;
                                     A_Reg_in = A_Reg_out ^ DB_buff;
                                     // Status Register
+                                    LD_P = 1'b1;
                                     if (A_Reg_in == 8'd0)
                                         P_Reg_in[1] = 1'b1;
                                     else
@@ -1249,6 +1291,7 @@ always_comb begin
                                     LD_A = 1'b1;
                                     A_Reg_in = A_Reg_out | DB_buff;
                                     // Status Register
+                                    LD_P = 1'b1;
                                     if (A_Reg_in == 8'd0)
                                         P_Reg_in[1] = 1'b1;
                                     else
@@ -1302,7 +1345,7 @@ always_comb begin
                         4'd1:   begin
                                     LD_P = 1'b1;
                                     P_Reg_in[0] = DB_buff[7];
-                                    DB_out = {DB_buff[6:0], P_Reg_in[0]};
+                                    DB_out = {DB_buff[6:0], P_Reg_out[0]};
                                     RW = 1'b0;
                                     // Status Register
                                     if (DB_out == 8'd0)
@@ -1320,7 +1363,7 @@ always_comb begin
                         4'd1:   begin
                                     LD_P = 1'b1;
                                     P_Reg_in[0] = DB_buff[0];
-                                    DB_out = {P_Reg_in[0], DB_buff[7:1]};
+                                    DB_out = {P_Reg_out[0], DB_buff[7:1]};
                                     RW = 1'b0;
                                     // Status Register
                                     if (DB_out == 8'd0)
@@ -1419,12 +1462,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1451,12 +1494,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1483,12 +1526,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1515,12 +1558,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1547,12 +1590,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1579,12 +1622,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1611,12 +1654,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1643,12 +1686,12 @@ always_comb begin
                                     end
                             4'd3:   begin
                                         if (Add_Cycle_Control == 4'd1) begin
-                                            AB_out = PC_Reg_in;
+                                            Next_Addr = PC_Reg_in;
                                             LD_PC = 1'b1;
                                         end
                                     end
                             4'd4:   begin
-                                        AB_out = PC_Reg_in;
+                                        Next_Addr = PC_Reg_in;
                                         LD_PC = 1'b1;
                                     end
                             default:    ;   // Do nothing
@@ -1660,31 +1703,29 @@ always_comb begin
                         4'd0:   begin
                                     Address_Inc = 1'b0;
                                     PC_Inc = 1'b0;
-                                    AB_out = {DB_buff, D_Reg_out};
+                                    Next_Addr = {DB_buff, D_Reg_out};
                                     LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
+                                    PC_Reg_in = Next_Addr;
                                 end
                         default:    ;   // Do nothing
                     endcase   
             JSR:    unique case (Curr_Op_Cycle)
-                        4'd1:   begin
+                        4'd0:   begin
                                     // Push PCH onto D2
                                     LD_D2 = 1'b1;
                                     D2_Reg_in = DB_buff;
                                     // Addressing
-                                    AB_out = Stack_Pointer;
-                                    temp = PC_Reg_out - 16'd1;
-                                    DB_out = temp[15:8];
+                                    Next_Addr = Stack_Pointer;
+                                    DB_out = PC_Reg_out[15:8];
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
                                     SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
-                        4'd2:   begin
+                        4'd1:   begin
                                     // Addressing
-                                    AB_out = Stack_Pointer;
-                                    temp = PC_Reg_out - 16'd1;
-                                    DB_out = temp[7:0];
+                                    Next_Addr = Stack_Pointer;
+                                    DB_out = PC_Reg_out[7:0];
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
@@ -1692,9 +1733,9 @@ always_comb begin
                                 end
                         4'd3:   begin
                                     // Addressing
-                                    AB_out = {D2_Reg_out, D_Reg_out};
+                                    Next_Addr = {D2_Reg_out, D_Reg_out};
                                     LD_PC = 1'b1;
-                                    PC_Reg_in = AB_out;
+                                    PC_Reg_in = Next_Addr;
                                 end
                         default:    ;   // Do nothing
                     endcase   
@@ -1736,11 +1777,14 @@ always_comb begin
         LD_PC = 1'b1;
         PC_Reg_in = PC_Reg_out + 16'd1;
     end
-        
-    // Addressing
-    if (Address_Inc) begin
+end
+
+// Addressing
+always_comb begin
+    if (Address_Inc)
         AB_out = PC_Reg_out + 16'd1;
-    end
+    else
+        AB_out = Next_Addr;
 end
 
 
