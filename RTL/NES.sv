@@ -52,59 +52,28 @@ module NES(
     output logic [3:0] hex_gridB
     );
     
-    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_21MHz, clk_CPU, clk_DMA, clk_PPU, clk_MEM, clk_CTRL;
+    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_21MHz, clk_CPU, clk_PPU;
     logic locked;
     logic locked2;
-    
-    assign reset_ah = reset_rtl_0;
-    
-    // VGA / HDMI
     logic [9:0] drawX, drawY;
+
     logic hsync, vsync, vde;
     logic [7:0] red, green, blue;
     logic reset_ah;
+    
+    assign reset_ah = reset_rtl_0;
+    
+    logic [7:0] ppu_pixel;
+    logic [8:0] ppu_x, ppu_y;
     
     // PPU
     logic[13:0] vram_addr;
     logic[7:0] vram_data_in, vram_data_out;
     logic vram_rw_sel;
     logic nmi;
-    logic [2:0] ppu_addr;
+    logic [2:0] ppu_reg_address;
     wire [7:0] ppu_reg_data;
-    wire rw_ppu, ppu_cs_n;
-    reg ppu_oam_write;
-    
-    logic [7:0] ppu_pixel;
-    logic [8:0] ppu_x, ppu_y;
-    
-    // CPU
-    logic [15:0] addr_cpu;
-    logic [7:0] db_in, db_out;
-    // logic rw_cpu;
-    wire read_cpu, write_cpu;
-    reg stall;
-    
-    // Controller
-    logic controller_cs_n;
-    logic controller_addr;
-    wire rw_ctrl; // Controller read/write toggle 1 = read, 0 = write
-	//assign rw_ctrl = rw_cpu;
-	assign rw_ctrl = write_cpu ? 1'b0 : 1'b1;
-	assign clk_CTRL = clk_CPU;
-    
-    // DMA / Memory
-    logic mem_cs_n;
-    logic [15:0] mem_addr;
-    reg [15:0] addr_dma;
-    wire [7:0] data;
-    reg cpu_ram_read;
-    wire [3:0] game;
-    assign clk_DMA = clk_CPU;
-    assign clk_MEM = clk_PPU;
-    
-    // assign rw_ppu = ~rw_cpu ? 1'b1 : 1'b0;
-    assign rw_ppu = write_cpu ? 1'b1 : 1'b0;
-   
+    logic ppu_rw, ppu_cs;
         
     //clock wizard configured with a 1x and 5x clock for HDMI
     clk_wiz_0 clk_wiz (
@@ -120,8 +89,8 @@ module NES(
     // CPU clock calculation
     clk_div3_v2 clk_divider3 (
         .clk(clk_21MHz),
-        .clk12_out(clk_CPU),
-        .clk4_out(clk_PPU),
+        .clk12_out(clk_PPU),
+        .clk4_out(clk_CPU),
         .reset(reset_ah)
     );
     
@@ -172,7 +141,7 @@ module NES(
         .ppu_x(ppu_y),
         .ppu_y(ppu_x),
         .pixel_clk(clk_25MHz),
-        .reset(reset_ah),
+        .reset(1'b0),
         .hs(hsync),
         .vs(vsync),
         .active_nblank(vde),
@@ -192,7 +161,7 @@ module NES(
         .pix_clkx5(clk_125MHz),
         .pix_clk_locked(locked),
         //Reset is active LOW
-        .rst(reset_ah),
+        .rst(1'b0),
         //Color and Sync Signals
         .red(red),
         .green(green),
@@ -213,6 +182,5 @@ module NES(
         .TMDS_DATA_P(hdmi_tmds_data_p),         
         .TMDS_DATA_N(hdmi_tmds_data_n)          
     );
-
     
 endmodule

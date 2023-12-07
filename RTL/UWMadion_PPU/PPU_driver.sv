@@ -329,6 +329,7 @@ module PPU_driver (
 			end
 			WAIT_3: begin
 				nxt_state = WRITE_SPR_Y_ADDR;
+//				nxt_state = IDLE;
 			end
 			WRITE_SPR_Y_ADDR: begin
 				ppu_cs = 0;
