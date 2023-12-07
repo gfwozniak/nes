@@ -62,9 +62,9 @@ initial begin: TEST_VECTORS
     
     #20 Reset = 0;
     
-    #900 NMI = 1'b1;
+//    #900 NMI = 1'b1;
     
-    #500 NMI = 1'b0;
+//    #500 NMI = 1'b0;
     
     // Now just wait and look up the results
 end

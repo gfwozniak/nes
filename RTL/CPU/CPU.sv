@@ -1710,22 +1710,24 @@ always_comb begin
                         default:    ;   // Do nothing
                     endcase   
             JSR:    unique case (Curr_Op_Cycle)
-                        4'd0:   begin
-                                    // Push PCH onto D2
-                                    LD_D2 = 1'b1;
-                                    D2_Reg_in = DB_buff;
+                        4'd1:   begin    
                                     // Addressing
                                     Next_Addr = Stack_Pointer;
-                                    DB_out = PC_Reg_out[15:8];
+                                    D_Reg_in = PC_Reg_out[15:8] + 8'd1;
+                                    if (PC_Reg_out[7:0] == 8'hff)
+                                        DB_out = D_Reg_in;
+                                    else
+                                        DB_out = PC_Reg_out[15:8];
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
                                     SP_Reg_in = SP_Reg_out - 8'd1;
                                 end
-                        4'd1:   begin
+                        4'd2:   begin
                                     // Addressing
                                     Next_Addr = Stack_Pointer;
-                                    DB_out = PC_Reg_out[7:0];
+                                    D_Reg_in = PC_Reg_out[7:0] + 8'd1;
+                                    DB_out = D_Reg_in;
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
@@ -1733,7 +1735,7 @@ always_comb begin
                                 end
                         4'd3:   begin
                                     // Addressing
-                                    Next_Addr = {D2_Reg_out, D_Reg_out};
+                                    Next_Addr = ADDR_Reg_out;
                                     LD_PC = 1'b1;
                                     PC_Reg_in = Next_Addr;
                                 end

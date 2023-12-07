@@ -15,7 +15,7 @@ module MemoryWrapper(
 			
 wire [10:0] ram_addr;
 wire [14:0] rom_addr;
-wire [7:0] q_rom, q_ram, q, q_rom_mario, q_rom_dk, q_rom_nestest;
+wire [7:0] q_rom, q_ram, q, q_rom_mario, q_rom_dk, q_rom_nestest, q_rom_colortest;
 wire ram_cs, rom_cs;
 wire rom_rd, ram_rd, ram_wr;
 
@@ -31,8 +31,8 @@ assign rom_rd = !rom_cs ? rd : 0;
 assign q = (!rom_cs) ? q_rom : q_ram;
 assign databus = (rd & !cs) ? q : 8'hzz;
 
-// Force mario for now
-assign q_rom = q_rom_nestest;
+// Force rom for now
+assign q_rom = q_rom_colortest;
 //assign q_rom = (game == MARIO) ? q_rom_mario : 
 //			   (game == DONKEY_KONG) ? q_rom_dk :
 //			   (game == NES_TEST) ? q_rom_nestest :
@@ -44,17 +44,29 @@ MarioProgramRom  mario_prg_rom (
     .douta( q_rom_mario )
 );
 
-DonkeyKongProgramRom  dk_prg_rom (
-    .addra( rom_addr[13:0] ),
-    .clka( clk ),
-    .douta( q_rom_dk )
-);
+//Test_GCR_Rom Test_GCR_rom (
+//    .Clk(Clk),
+//    .address(rom_addr),
+//    .data(q_rom_colortest)
+//);
 
-NesTestProgramRom  nestest_prg_rom (
-    .addra( rom_addr[13:0] ),
-    .clka( clk ),
-    .douta( q_rom_nestest )
-);
+//DonkeyKongProgramRom  dk_prg_rom (
+//    .addra( rom_addr[13:0] ),
+//    .clka( clk ),
+//    .douta( q_rom_dk )
+//);
+
+//NesTestProgramRom  nestest_prg_rom (
+//    .addra( rom_addr[13:0] ),
+//    .clka( clk ),
+//    .douta( q_rom_nestest )
+//);
+
+//color_prg_rom  color_prg_rom (
+//    .addra( rom_addr ),
+//    .clka( clk ),
+//    .douta( q_rom_colortest )
+//);
 
 ProgramRam prg_ram (
     .addra( ram_addr ),

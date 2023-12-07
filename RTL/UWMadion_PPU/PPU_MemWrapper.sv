@@ -80,12 +80,13 @@ always_comb begin
 end
 
 
-NesTestCharacterRom nestest_char_rom (
-    .addra(rom_addr), 
-    .clka(clk2x), 
-    .douta(rom_douta)
-    );
-//char_rom mario_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
+//NesTestCharacterRom nestest_char_rom (
+//    .addra(rom_addr), 
+//    .clka(clk2x), 
+//    .douta(rom_douta)
+//    );
+char_rom mario_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
+//char_rom color_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
 blk_mem_gen_1 vram (
     .addra({3'b000,ram_addr}),
     .clka(clk2x),

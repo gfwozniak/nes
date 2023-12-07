@@ -80,14 +80,16 @@ module NES(
     // CPU
     logic [15:0] addr_cpu;
     logic [7:0] db_in, db_out;
-    logic rw_cpu;
+    // logic rw_cpu;
+    wire read_cpu, write_cpu;
     reg stall;
     
     // Controller
     logic controller_cs_n;
     logic controller_addr;
     wire rw_ctrl; // Controller read/write toggle 1 = read, 0 = write
-	assign rw_ctrl = rw_cpu;
+	//assign rw_ctrl = rw_cpu;
+	assign rw_ctrl = write_cpu ? 1'b0 : 1'b1;
 	assign clk_CTRL = clk_CPU;
     
     // DMA / Memory
@@ -100,8 +102,8 @@ module NES(
     assign clk_DMA = clk_CPU;
     assign clk_MEM = clk_PPU;
     
-    assign rw_ppu = ~rw_cpu ? 1'b1 : 1'b0;
-    
+    // assign rw_ppu = ~rw_cpu ? 1'b1 : 1'b0;
+    assign rw_ppu = write_cpu ? 1'b1 : 1'b0;
     
     // MicroBlaze setup for keyboard input
 //    mb_block mb_block_i(
@@ -144,27 +146,48 @@ module NES(
         .reset(reset_ah)
     );
     
-    CPU cpu (
-        // input
-        .Clk(clk_CPU),      
-        .Reset(reset_ah),   // active high reset
-        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
-        .NMI(nmi),
-        .RDY(~stall),
-        .DB_in(db_in),
-        
-        // output
-        .AB_out(addr_cpu),
-        .DB_out(db_out), 
-        .RW(rw_cpu)
-    );
+	CPU_uw cpu(   // UWMADISON CPU
+		// output
+		.read( read_cpu ), .write( write_cpu ), .addr( addr_cpu ),
+
+		// input
+		.clk( clk_CPU ), .rst( reset_ah ),
+		.nmi( nmi ), .stall( stall ), // TODO added | writing for testing
+
+		// inout
+		.data( data )
+
+		//testing
+//		.pc_peek(pc_peek),
+//		.ir_peek(ir_peek),
+//		.a_peek(a_peek),
+//		.x_peek(x_peek),
+//		.y_peek(y_peek),
+//		.flags_peek(flags_peek),
+//		.other_byte_peek(other_byte_peek)
+	);
     
-    ConvertToInOut ctio (   
-        .indata(db_out),
-	    .outdata(db_in),
-	    .rw(rw_cpu),
-	    .inoutdata(data)
-    );
+//    CPU cpu (
+//        // input
+//        .Clk(clk_CPU),      
+//        .Reset(reset_ah),   // active high reset
+//        .IRQ(1'b0),         // IRQ doesn't seem to be used for our implementation so we keep it constant 0
+//        .NMI(nmi),
+//        .RDY(~stall),
+//        .DB_in(db_in),
+        
+//        // output
+//        .AB_out(addr_cpu),
+//        .DB_out(db_out), 
+//        .RW(rw_cpu)
+//    );
+    
+//    ConvertToInOut ctio (   
+//        .indata(db_out),
+//	    .outdata(db_in),
+//	    .rw(rw_cpu),
+//	    .inoutdata(data)
+//    );
     
 //    ConvertToInOut ctio_cpu_write (   
 //        .indata(db_in),
@@ -213,7 +236,7 @@ module NES(
 		.controller_addr( controller_addr ), .mem_addr( mem_addr ),
 
 		// input
-		.addr( addr_dma ), .rd(rw_cpu), .wr(~rw_cpu)
+		.addr( addr_dma ), .rd( read_cpu ), .wr( write_cpu )
     );
     
     OAM_dma dma(
@@ -231,7 +254,7 @@ module NES(
 	MemoryWrapper mem(
 		// input
 		.clk( clk_MEM ), .cs( mem_cs_n ), .rst_n( reset_ah ),
-		.rd( rw_cpu || cpu_ram_read ), .wr( ~rw_cpu ),
+		.rd( read_cpu || cpu_ram_read ), .wr( write_cpu ),
 		.addr( mem_addr ), .game( game ),
 
 		// inout

@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="83.095000 us"></ZoomStartTime>
-      <ZoomEndTime time="97.525001 us"></ZoomEndTime>
-      <Cursor1Time time="86.390000 us"></Cursor1Time>
+      <ZoomStartTime time="138.136667 us"></ZoomStartTime>
+      <ZoomEndTime time="167.256668 us"></ZoomEndTime>
+      <Cursor1Time time="142.990000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="340"></NameColumnWidth>
-      <ValueColumnWidth column_width="85"></ValueColumnWidth>
+      <NameColumnWidth column_width="338"></NameColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="8" />
+   <WVObjectSize size="24" />
    <wvobject fp_name="group70" type="group">
       <obj_property name="label">MicroBlaze</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -102,6 +102,10 @@
       <wvobject fp_name="/testbench/nes/ppu_addr" type="array">
          <obj_property name="ElementShortName">ppu_addr[2:0]</obj_property>
          <obj_property name="ObjectShortName">ppu_addr[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/testbench/nes/ppu/pixel_data" type="array">
+         <obj_property name="ElementShortName">pixel_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">pixel_data[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/testbench/nes/rw_ppu" type="logic">
          <obj_property name="ElementShortName">rw_ppu</obj_property>
@@ -309,5 +313,69 @@
    <wvobject fp_name="/testbench/nes/data" type="array">
       <obj_property name="ElementShortName">data[7:0]</obj_property>
       <obj_property name="ObjectShortName">data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/spr/spr_data_in" type="array">
+      <obj_property name="ElementShortName">spr_data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">spr_data_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/spr/oam_data_out" type="array">
+      <obj_property name="ElementShortName">oam_data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">oam_data_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/spr/x_pos" type="array">
+      <obj_property name="ElementShortName">x_pos[8:0]</obj_property>
+      <obj_property name="ObjectShortName">x_pos[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/spr/y_pos" type="array">
+      <obj_property name="ElementShortName">y_pos[8:0]</obj_property>
+      <obj_property name="ObjectShortName">y_pos[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/pal_mem/palette_mem" type="array">
+      <obj_property name="ElementShortName">palette_mem[31:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_mem[31:0][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/pal_mem/palette_data_in" type="array">
+      <obj_property name="ElementShortName">palette_data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_data_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu_mem/rom_douta" type="array">
+      <obj_property name="ElementShortName">rom_douta[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rom_douta[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu_mem/ram_douta" type="array">
+      <obj_property name="ElementShortName">ram_douta[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_douta[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/palette_mem_en" type="logic">
+      <obj_property name="ElementShortName">palette_mem_en</obj_property>
+      <obj_property name="ObjectShortName">palette_mem_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/palette_mem_rw" type="logic">
+      <obj_property name="ElementShortName">palette_mem_rw</obj_property>
+      <obj_property name="ObjectShortName">palette_mem_rw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu_addr" type="array">
+      <obj_property name="ElementShortName">ppu_addr[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_addr[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/address" type="array">
+      <obj_property name="ElementShortName">address[2:0]</obj_property>
+      <obj_property name="ObjectShortName">address[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/pal_mem/color" type="array">
+      <obj_property name="ElementShortName">color[7:0]</obj_property>
+      <obj_property name="ObjectShortName">color[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/bg_active" type="logic">
+      <obj_property name="ElementShortName">bg_active</obj_property>
+      <obj_property name="ObjectShortName">bg_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/cpu_pal_req" type="logic">
+      <obj_property name="ElementShortName">cpu_pal_req</obj_property>
+      <obj_property name="ObjectShortName">cpu_pal_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/nes/ppu/bg/bg_state" type="array">
+      <obj_property name="ElementShortName">bg_state[4:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_state[4:0]</obj_property>
    </wvobject>
 </wave_config>
