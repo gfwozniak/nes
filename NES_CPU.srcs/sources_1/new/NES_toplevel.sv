@@ -59,12 +59,18 @@ end
 
 
 // Test ROM
-Test_ROM_v2 rom(.addra(address),
-                .clka(Clk_MEM),
-                .dina(DB_out),
-                .douta(db),
-                .wea(~RW)
-                );
+Test_ROM    test_rom(.Clk(Clk_MEM),
+                     .address(address),
+                     .data(db)
+                     );
+
+
+//Test_ROM_v2 rom(.addra(address),
+//                .clka(Clk_MEM),
+//                .dina(DB_out),
+//                .douta(db),
+//                .wea(~RW)
+//                );
      
 
 endmodule

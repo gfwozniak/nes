@@ -73,7 +73,7 @@ logic           phi1,
                 LD_D,
                 LD_D2,
                 IRQ_Start, IRQ_Halt, IRQ_Hijack,
-                NMI_Start, NMI_Halt, NMI_Hijack,
+                NMI_Start, NMI_Halt, NMI_Hijack, NMI_Start_D, NMI_dly, NMI_punished, NMI_pe,
                 In_Interrupt,
                 Address_Inc,        // Address Increment  
                 PC_Inc,             // PC Increment
@@ -2734,11 +2734,18 @@ always @ (posedge Clk, posedge Reset) begin
 
 end
 
+// NMI Edge Detector
+
+always_ff @ (posedge Clk) begin
+    NMI_dly <= NMI;
+end
+
+assign NMI_pe = NMI & ~NMI_dly;
+
 always @ (posedge Clk) begin
     
     // Set defaults
     IRQ_Start = 1'b0;
-    NMI_Start = 1'b0;
     
     if (Reset_Seq > 5'd0) begin
         NMI_Hijack <= 1'b0;
@@ -2771,12 +2778,14 @@ always @ (posedge Clk) begin
     end
     
     // Initiate interrupt sequences
+    if (NMI_pe)
+        NMI_Start <= 1'b1;
     
     // We don't want interrupts to happen after an interrupt
     if (In_Interrupt)
         ;   // Do nothing
-    else if (NMI) begin
-        NMI_Start = 1'b1;
+    else if (NMI_Start) begin
+        NMI_Start <= 1'b0;
         NMI_Seq <= 5'd1;
     end
     else if ( IRQ && (P_Reg_out[3] == 0 || Op_State == RTI) && NMI_Seq == 5'd0 ) begin
@@ -2785,8 +2794,10 @@ always @ (posedge Clk) begin
     end
     
     // Interrupt sequence
-    if ( (NMI_Start || NMI_Seq == 5'd1) && Stop_Op )
+    if ( (NMI_Start || NMI_Seq == 5'd1) && Stop_Op ) begin
+        NMI_Start <= 1'b0;
         NMI_Seq <= 5'd2;
+    end
     else if ( (IRQ_Start || IRQ_Seq == 5'd1) && Stop_Op )
         IRQ_Seq <= 5'd2;
     

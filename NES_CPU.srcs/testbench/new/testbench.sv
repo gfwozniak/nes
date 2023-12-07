@@ -53,17 +53,18 @@ end
 initial begin: CLOCK_INITIALIZATION
     Clk_MEM = 1'b0;
     Clk_CPU = 1'b0;
-    Start = 1'b1;
+    Start = 1'b0;
 end 
 
 
 initial begin: TEST_VECTORS
     Reset = 1;  // Toggle Reset
     
-    
     #20 Reset = 0;
     
-    #300 Start = 1'b0;
+    #900 NMI = 1'b1;
+    
+    #500 NMI = 1'b0;
     
     // Now just wait and look up the results
 end

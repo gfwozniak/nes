@@ -549,7 +549,7 @@ module PPU (
 	// 341 pixels in one scanline
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-			scanline_count <= 9'hfff;
+			scanline_count <= 9'hfff; 
 			pixel_count <= 9'h000;
 		end
 
@@ -564,7 +564,10 @@ module PPU (
 
 		else begin
 			pixel_count <= 9'h000;
-			scanline_count <= scanline_count + 1;
+//			if (scanline_count == 9'hfff)
+//			    scanline_count <= 9'h0ef;
+//			else
+                scanline_count <= scanline_count + 1;
 		end
 	end
 
