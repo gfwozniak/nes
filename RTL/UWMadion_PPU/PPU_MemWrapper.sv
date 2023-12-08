@@ -1,7 +1,6 @@
 import Games::*;
 
 module PPUMemoryWrapper(input clk,
-                                input clk2x,
 								input rst_n,
 								input [3:0] game,
 								input [13:0] addr,
@@ -28,7 +27,7 @@ assign ram_addr = addr[10:0];
 // Force test rom
 assign rom_q = nestest_rom_q;
 
-assign q = prev_ram_en ? ram_out : prev_rom_en ? rom_out : 8'hzz;
+assign q = prev_ram_en ? ram_douta : prev_rom_en ? rom_douta : 8'hzz;
 
 					
 		
@@ -60,36 +59,16 @@ end
 //	.rden(~rw),
 //	.q(mario_rom_q));
 
-
-
-
-
-always_ff @ (posedge clk2x) begin
-	   rom_out <= rom_out_d;
-	   ram_out <= ram_out_d;
-end
-
-always_comb begin
-    rom_out_d = rom_out;
-    ram_out_d = ram_out;
-    if (clk)
-    begin
-        rom_out_d = rom_douta;
-        ram_out_d = ram_douta;
-    end
-end
-
-
 //NesTestCharacterRom nestest_char_rom (
 //    .addra(rom_addr), 
-//    .clka(clk2x), 
+//    .clka(clk), 
 //    .douta(rom_douta)
 //    );
-char_rom mario_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
-//char_rom color_char_rom (.addra(rom_addr), .clka(clk2x), .douta(rom_douta));
+char_rom mario_char_rom (.addra(rom_addr), .clka(clk), .douta(rom_douta));
+//char_rom color_char_rom (.addra(rom_addr), .clka(clk), .douta(rom_douta));
 blk_mem_gen_1 vram (
     .addra({3'b000,ram_addr}),
-    .clka(clk2x),
+    .clka(clk),
     .dina(data),
     .douta(ram_douta),
     .ena(1'b1),

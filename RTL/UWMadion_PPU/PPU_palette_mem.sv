@@ -20,10 +20,11 @@ module PPU_palette_mem(
 	
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-//			for (i = 0; i < 32; i = i + 1)
-//				palette_mem[i] <= 8'h00;
-			
-			palette_mem[0] <= 8'h22;   //GABE'S TEST CODE
+			/*
+			for (i = 0; i < 32; i = i + 1)
+				palette_mem[i] <= 8'h00;
+			*/
+			palette_mem[0] <= 8'h22;
 			palette_mem[1] <= 8'h29;
 			palette_mem[2] <= 8'h1a;
 			palette_mem[3] <= 8'h0f;

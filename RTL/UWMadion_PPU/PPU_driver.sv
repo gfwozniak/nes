@@ -314,7 +314,7 @@ module PPU_driver (
 				ppu_cs = 0;
 				ppu_rw = 1;
 				address = 3'h5;
-				ppu_data = {fine_scroll[7:3], 3'b000};
+				ppu_data = fine_scroll;
 				nxt_state = WAIT_4;
 			end
 			WAIT_4 : begin

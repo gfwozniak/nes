@@ -622,12 +622,3 @@ module PPU_sprite(
 	assign spr_0_rendering = is_oam_spr_0 && spr_0_active;
 	
 endmodule
-
-
-
-
-
-
-
-
-

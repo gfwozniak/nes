@@ -247,17 +247,8 @@ module PPU (
 
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-			PPUCTRL <= 8'h00;
-			PPUMASK <= 8'h00;
-			PPUSTATUS <= 8'h00;
-			OAMADDR <= 8'h00;
-			OAMDATA <= 8'h00;
-			PPUSCROLL <= 8'h00;
-			PPUADDR <= 8'h00;
-			PPUDATA <= 8'h00;
-			OAMDMA <= 8'h00;
-//			PPUCTRL <= 8'h80; GABE'S TEST CODE
-//			PPUMASK <= 8'h1e;
+//			PPUCTRL <= 8'h00;
+//			PPUMASK <= 8'h00;
 //			PPUSTATUS <= 8'h00;
 //			OAMADDR <= 8'h00;
 //			OAMDATA <= 8'h00;
@@ -265,6 +256,15 @@ module PPU (
 //			PPUADDR <= 8'h00;
 //			PPUDATA <= 8'h00;
 //			OAMDMA <= 8'h00;
+			PPUCTRL <= 8'h80;
+			PPUMASK <= 8'h1e;
+			PPUSTATUS <= 8'h00;
+			OAMADDR <= 8'h00;
+			OAMDATA <= 8'h00;
+			PPUSCROLL <= 8'h00;
+			PPUADDR <= 8'h00;
+			PPUDATA <= 8'h00;
+			OAMDMA <= 8'h00;
 			loopy_t <= 15'h0000;
 			fine_x_scroll <= 3'h0;
 			w <= 1'b0;
@@ -549,7 +549,7 @@ module PPU (
 	// 341 pixels in one scanline
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-			scanline_count <= 9'hfff; 
+			scanline_count <= 9'hfff;
 			pixel_count <= 9'h000;
 		end
 
@@ -564,10 +564,7 @@ module PPU (
 
 		else begin
 			pixel_count <= 9'h000;
-//			if (scanline_count == 9'hfff)
-//			    scanline_count <= 9'h0ef;
-//			else
-                scanline_count <= scanline_count + 1;
+			scanline_count <= scanline_count + 1;
 		end
 	end
 
