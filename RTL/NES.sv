@@ -84,7 +84,7 @@ module NES(
 
 	wire [7:0] vram_data_in; // Data input from VRAM reads
 	wire rw_ppu, rw_apu; // PPU register read/write toggle 0 = read, 1 = write
-	assign rw_ppu = write_cpu ? 1'b1 : 1'b0;
+	assign rw_ppu = write_cpu ? 1'b0 : 1'b1;
 	assign rw_apu = rw_ppu;
 
 	wire rw_ctrl; // Controller read/write toggle 1 = read, 0 = write
@@ -132,6 +132,79 @@ module NES(
         .reset(reset_ah)
     );
     
+    CPU_uw cpu(
+		// output
+		.read( read_cpu ), .write( write_cpu ), .addr( addr_cpu ),
+
+		// input
+		.clk( clk_cpu ), .rst( reset_ah ),
+		.nmi( nmi ), .irq( 1'b1 ), .stall( stall ), // TODO added | writing for testing
+
+		// inout
+		.data( data ),
+
+		// testing
+		.pc_peek(pc_peek),
+		.ir_peek(ir_peek),
+		.a_peek(a_peek),
+		.x_peek(x_peek),
+		.y_peek(y_peek),
+		.flags_peek(flags_peek),
+		.other_byte_peek(other_byte_peek)
+	);
+	
+    OAM_dma dma(
+		// output
+		.cpu_stall( stall ), .address_out( addr_dma ), .cpu_ram_read(cpu_ram_read), .ppu_oam_write(ppu_oam_write),
+
+		// input
+		.clk( clk_dma ), .rst_n( ~reset_ah ),
+		.address_in( addr_cpu ),
+
+		// inout
+		.data( data )
+	);
+	
+    HardwareDecoder decoder(
+		// output
+		.ppu_cs_n( ppu_cs_n ),
+		.controller_cs_n( controller_cs_n ), .mem_cs_n( mem_cs_n ),
+
+		.ppu_addr( ppu_addr ),
+		.controller_addr( controller_addr ), .mem_addr( mem_addr ),
+
+		// input
+		.addr( addr_dma ), .rd(read_cpu), .wr(write_cpu)
+	);
+	
+	MemoryWrapper mem(
+		// input
+		.clk( clk_mem ), .cs( mem_cs_n ),
+		.rd( read_cpu || cpu_ram_read), .wr( write_cpu ),
+		.addr( mem_addr ), .game( 4'b0000 ),
+		.rst_n(0'b0),
+
+		// inout
+		.databus( data ),
+
+		// test
+		.ram_addr_peek( ram_addr_peek )
+	);
+	
+	ControllersWrapper ctrls(
+	
+		// input
+		.clk( clk_ctrl ), .rst_n( 1'b0), .addr( controller_addr ),
+		.cs( controller_cs_n ), .rw( rw_ctrl ),
+
+		// inout
+		.cpubus( data )//,
+
+		// testing
+		//.send_cpu_states(port_wr), .cpuram_q(cpuram_q), .writing(writing),
+		//.cpuram_rd_addr(cpuram_rd_addr), .cpuram_rd(cpuram_rd), .cpuram_wr_addr( cpuram_wr_addr )
+	);
+    
     PPU ppu (
         // output
 		.irq( nmi ), .pixel_data( pixel_data ), .vram_addr_out( vram_addr ),
@@ -143,6 +216,7 @@ module NES(
 		.clk( clk_ppu ), .rst_n( ~reset_ah ),
 		.address( ppu_addr ), .vram_data_in( vram_data_in ),
 		.rw(rw_ppu || ppu_oam_write), .cs_in( ppu_cs_n ),
+		.SW(SW),
 
 		// inout
 		.data( data ),
@@ -152,15 +226,15 @@ module NES(
         .screen_x(ppu_x) //[8:0] 
     );
     
-    PPU_driver ppu_driver (
-        .clk(clk_cpu), // CPU clock
-        .rst_n(~reset_ah), // global reset
-        .nmi(nmi), // PPU nmi out
-        .address(ppu_addr), // address to ppu
-        .ppu_data(data),
-        .ppu_rw(write_cpu),
-        .ppu_cs(ppu_cs_n)
-    );
+//    PPU_driver ppu_driver (
+//        .clk(clk_cpu), // CPU clock
+//        .rst_n(~reset_ah), // global reset
+//        .nmi(nmi), // PPU nmi out
+//        .address(ppu_addr), // address to ppu
+//        .ppu_data(data),
+//        .ppu_rw(write_cpu),
+//        .ppu_cs(ppu_cs_n)
+//    );
     
     PPUMemoryWrapper ppu_mem (
         .clk(clk_ppu),
