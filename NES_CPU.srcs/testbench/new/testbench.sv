@@ -53,7 +53,7 @@ end
 initial begin: CLOCK_INITIALIZATION
     Clk_MEM = 1'b0;
     Clk_CPU = 1'b0;
-    Start = 1'b0;
+    Start = 1'b1;
 end 
 
 
@@ -63,6 +63,7 @@ initial begin: TEST_VECTORS
     #20 Reset = 0;
     
 //    #900 NMI = 1'b1;
+    #900 Start = 0;
     
 //    #500 NMI = 1'b0;
     

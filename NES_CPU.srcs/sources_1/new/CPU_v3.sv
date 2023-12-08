@@ -835,7 +835,11 @@ always_comb begin
                                     Next_Addr = Stack_Pointer;
                                 end
                         4'd6:   begin
-                                    Next_Addr = {DB_buff, D_Reg_out};
+                                    D2_Reg_in = D_Reg_out + 8'd1;
+                                    if (D_Reg_out == 8'hff)
+                                        Next_Addr = {DB_buff + 8'd1, D2_Reg_in};
+                                    else
+                                        Next_Addr = {DB_buff, D2_Reg_in};
                                     LD_PC = 1'b1;
                                     PC_Reg_in = Next_Addr;
                                 end
@@ -1713,11 +1717,7 @@ always_comb begin
                         4'd1:   begin    
                                     // Addressing
                                     Next_Addr = Stack_Pointer;
-                                    D_Reg_in = PC_Reg_out[15:8] + 8'd1;
-                                    if (PC_Reg_out[7:0] == 8'hff)
-                                        DB_out = D_Reg_in;
-                                    else
-                                        DB_out = PC_Reg_out[15:8];
+                                    DB_out = PC_Reg_out[15:8];
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
@@ -1726,8 +1726,7 @@ always_comb begin
                         4'd2:   begin
                                     // Addressing
                                     Next_Addr = Stack_Pointer;
-                                    D_Reg_in = PC_Reg_out[7:0] + 8'd1;
-                                    DB_out = D_Reg_in;
+                                    DB_out = PC_Reg_out[7:0];
                                     RW = 1'b0;
                                     // Decrementing SP
                                     LD_SP = 1'b1;
