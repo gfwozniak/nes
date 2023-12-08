@@ -100,16 +100,10 @@ module NES(
         .clk_out1(clk_25MHz),
         .clk_out2(clk_125MHz),
         .clk_out3(clk_5MHz),
+        .clk_out4(clk_21MHz),
         .reset(reset_ah),
         .locked(locked),
         .clk_in1(Clk)
-    );
-    
-    clk_wiz_master clk_master (
-        .clk_out1(clk_21MHz),
-        .reset(reset_ah),
-        .locked(locked2),
-        .clk_in1(clk_125MHz)
     );
     
     // CPU clock calculation

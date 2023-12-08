@@ -5,7 +5,7 @@ module clk_div3_v2(clk, reset, clk12_out, clk4_out);
     output clk12_out;
     output clk4_out;
      
-    reg [3:0] pos_count;
+    reg [3:0] pos_count = 0;
     wire [1:0] r_nxt;
      
     always @(posedge clk) begin
