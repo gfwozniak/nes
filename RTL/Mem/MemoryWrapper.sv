@@ -32,13 +32,13 @@ assign q = (!rom_cs) ? q_rom : q_ram;
 assign databus = (rd & !cs) ? q : 8'hzz;
 
 // Force rom for now
-assign q_rom = q_rom_colortest;
+assign q_rom = q_rom_mario;
 //assign q_rom = (game == MARIO) ? q_rom_mario : 
 //			   (game == DONKEY_KONG) ? q_rom_dk :
 //			   (game == NES_TEST) ? q_rom_nestest :
 //					8'hEA; // NOP
 
-MarioProgramRom  mario_prg_rom (
+MarioProgramRom  prg_rom (
     .addra( rom_addr ),
     .clka( clk ),
     .douta( q_rom_mario )
@@ -73,8 +73,8 @@ ProgramRam prg_ram (
     .clka( clk ),
     .dina( databus ),
     .douta( q_ram ),
-    .rsta( rst_n ),
-    .wea( wr )
+//    .rsta( rst_n ),
+    .wea( !wr )
 );
 			
 

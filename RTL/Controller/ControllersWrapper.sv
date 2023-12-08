@@ -12,7 +12,7 @@ assign controller1_cs_n = addr | cs;
 assign controller2_cs_n = rw ? (~addr | cs) : (cs | addr);
 
 // Force controller to send no signal (idle controller) for now
-assign cpubus = (rw && (!controller1_cs_n ^ !controller2_cs_n)) ? 8'h00 : 8'hzz;
+assign cpubus = (!rw && !cs) ? 8'h00 : 8'hzz;
 
 
 endmodule

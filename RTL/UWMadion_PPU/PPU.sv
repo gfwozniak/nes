@@ -16,6 +16,7 @@ module PPU (
 	input [7:0] vram_data_in, // Data input from VRAM reads
 	input rw, // PPU register read/write toggle
 	input cs_in, // PPU chip select
+	input [15:0] SW,
 	output irq, // connected to the 6502's NMI pin
 	output [7:0] pixel_data, // the 8 bit color to draw to the screen
 	output [13:0] vram_addr_out, // The address that the sprite/background renderer specifies
@@ -247,17 +248,10 @@ module PPU (
 
 	always @(posedge clk, negedge rst_n) begin
 		if (!rst_n) begin
-//			PPUCTRL <= 8'h00;
-//			PPUMASK <= 8'h00;
-//			PPUSTATUS <= 8'h00;
-//			OAMADDR <= 8'h00;
-//			OAMDATA <= 8'h00;
-//			PPUSCROLL <= 8'h00;
-//			PPUADDR <= 8'h00;
-//			PPUDATA <= 8'h00;
-//			OAMDMA <= 8'h00;
-			PPUCTRL <= 8'h80;
-			PPUMASK <= 8'h1e;
+			PPUCTRL <= 8'h00;
+			PPUMASK <= 8'h00;
+//			PPUCTRL <= 8'h80;
+//			PPUMASK <= 8'h1e;
 			PPUSTATUS <= 8'h00;
 			OAMADDR <= 8'h00;
 			OAMDATA <= 8'h00;
@@ -265,6 +259,8 @@ module PPU (
 			PPUADDR <= 8'h00;
 			PPUDATA <= 8'h00;
 			OAMDMA <= 8'h00;
+
+
 			loopy_t <= 15'h0000;
 			fine_x_scroll <= 3'h0;
 			w <= 1'b0;
@@ -276,7 +272,7 @@ module PPU (
 		end
 		else begin
 			PPUCTRL <= PPUCTRL_D;
-			PPUMASK <= PPUMASK_D;
+			PPUMASK <= (PPUMASK_D | SW[7:0]);
 			PPUSTATUS <= PPUSTATUS_D;
 			OAMADDR <= OAMADDR_D;
 			OAMDATA <= OAMDATA_D;
@@ -564,7 +560,10 @@ module PPU (
 
 		else begin
 			pixel_count <= 9'h000;
-			scanline_count <= scanline_count + 1;
+//			if (scanline_count == 9'hfff)
+//			 scanline_count <= 9'hef;
+//			else
+			 scanline_count <= scanline_count + 1;
 		end
 	end
 

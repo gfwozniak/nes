@@ -64,7 +64,7 @@ end
 //    .clka(clk), 
 //    .douta(rom_douta)
 //    );
-char_rom mario_char_rom (.addra(rom_addr), .clka(clk), .douta(rom_douta));
+char_rom char_rom (.addra(rom_addr), .clka(clk), .douta(rom_douta));
 //char_rom color_char_rom (.addra(rom_addr), .clka(clk), .douta(rom_douta));
 blk_mem_gen_1 vram (
     .addra({3'b000,ram_addr}),
