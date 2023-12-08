@@ -19,7 +19,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+import Games::*;
 
 module NES(
     input logic Clk,
@@ -52,47 +52,58 @@ module NES(
     output logic [3:0] hex_gridB
     );
     
-    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_CPU, clk_PPU, clk_21MHz;
+    logic clk_25MHz, clk_125MHz, clk_5MHz, clk_21MHz, clk_CPU, clk_DMA, clk_PPU, clk_MEM, clk_CTRL;
     logic locked;
     logic locked2;
-    logic [9:0] drawX, drawY;
-
-    logic hsync, vsync, vde;
-    logic [7:0] red, green, blue;
-    logic reset_ah;
     
     assign reset_ah = reset_rtl_0;
     
-    logic [7:0] ppu_pixel;
-    logic [8:0] ppu_x, ppu_y;
+    // VGA / HDMI
+    logic [9:0] drawX, drawY;
+    logic hsync, vsync, vde;
+    logic [7:0] red, green, blue;
+    logic reset_ah;
     
     // PPU
     logic[13:0] vram_addr;
     logic[7:0] vram_data_in, vram_data_out;
     logic vram_rw_sel;
     logic nmi;
-    logic [2:0] ppu_reg_address;
+    logic [2:0] ppu_addr;
     wire [7:0] ppu_reg_data;
-    logic ppu_rw, ppu_cs;
+    wire rw_ppu, ppu_cs_n;
+    reg ppu_oam_write;
     
+    logic [7:0] ppu_pixel;
+    logic [8:0] ppu_x, ppu_y;
     
+    // CPU
+    logic [15:0] addr_cpu;
+    logic [7:0] db_in, db_out;
+    // logic rw_cpu;
+    wire read_cpu, write_cpu;
+    reg stall;
     
-//    //Keycode HEX drivers
-//    HexDriver HexA (
-//        .clk(Clk),
-//        .reset(reset_ah),
-//        .in({keycode0_gpio[31:28], keycode0_gpio[27:24], keycode0_gpio[23:20], keycode0_gpio[19:16]}),
-//        .hex_seg(hex_segA),
-//        .hex_grid(hex_gridA)
-//    );
+    // Controller
+    logic controller_cs_n;
+    logic controller_addr;
+    wire rw_ctrl; // Controller read/write toggle 1 = read, 0 = write
+	//assign rw_ctrl = rw_cpu;
+	assign rw_ctrl = write_cpu ? 1'b0 : 1'b1;
+	assign clk_CTRL = clk_CPU;
     
-//    HexDriver HexB (
-//        .clk(Clk),
-//        .reset(reset_ah),
-//        .in({keycode0_gpio[15:12], keycode0_gpio[11:8], keycode0_gpio[7:4], keycode0_gpio[3:0]}),
-//        .hex_seg(hex_segB),
-//        .hex_grid(hex_gridB)
-//    );
+    // DMA / Memory
+    logic mem_cs_n;
+    logic [15:0] mem_addr;
+    reg [15:0] addr_dma;
+    wire [7:0] data;
+    reg cpu_ram_read;
+    wire [3:0] game;
+    assign clk_DMA = clk_CPU;
+    assign clk_MEM = clk_PPU;
+    
+    // assign rw_ppu = ~rw_cpu ? 1'b1 : 1'b0;
+    assign rw_ppu = write_cpu ? 1'b1 : 1'b0;
    
         
     //clock wizard configured with a 1x and 5x clock for HDMI
