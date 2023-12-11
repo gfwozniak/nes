@@ -3,7 +3,7 @@
   "ip_inst": {
     "xci_name": "hdmi_tx_0",
     "component_reference": "realdigital.org:realdigital:hdmi_tx:1.0",
-    "ip_revision": "-1",
+    "ip_revision": "3",
     "gen_directory": "../../../../NES_PPU.gen/sources_1/ip/hdmi_tx_0",
     "parameters": {
       "component_parameters": {

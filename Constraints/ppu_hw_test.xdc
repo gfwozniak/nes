@@ -122,8 +122,8 @@ set_property PACKAGE_PIN A7 [get_ports {SW[13]}]
 set_property PACKAGE_PIN B7 [get_ports {SW[14]}]
 set_property PACKAGE_PIN A8 [get_ports {SW[15]}]
 
-#Button
-set_property PACKAGE_PIN J1 [get_ports Run]
-set_property IOSTANDARD LVCMOS25 [get_ports Run]
+##Button
+#set_property PACKAGE_PIN J1 [get_ports Run]
+#set_property IOSTANDARD LVCMOS25 [get_ports Run]
 
 
