@@ -18,3 +18,9 @@ The PPU demo is meant to be run on hardware by generating a bitstream and progra
 To run the PPU demo, create a new Vivado RTL project with the following settings: add sources from the directory "RTL", and add constraints from "Constraints/ppu_hw_test.xdc". Additionally, once the Vivado project is instantiated, you will need to import the "hdmi_tx_1.0" IP into the project by going to IP catalog, right clicking on "Vivado Repositories", clicking "Add repository" and adding the directory "IP/hdmi_tx_1.0". After all these steps are complete, set the top-level file to "NES" from "NES.sv" and compile the bitstream. You may also need to upgrade the IPs individually before synthesis.
 
 The end result is an HDMI signal which renders a random scrolling background made up of Super Mario Bros sprites as well as a floating sprite which moves in a circle. The screen effects are controlled by manipulation of the PPU registers.
+
+#### Works Cited
+
+A lot of source code is taken from this repository: https://github.com/jtgebert/fpganes_release
+
+A full description of original and unoriginal code can be found in the final report for this project.
